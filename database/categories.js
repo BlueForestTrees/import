@@ -1,4 +1,4 @@
-import ENV from "../../src/env"
+import ENV from "../src/env"
 import {object} from "mongo-registry"
 
 export const database = {
