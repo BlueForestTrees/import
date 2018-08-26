@@ -1,6 +1,6 @@
 import {expect} from "chai"
 import {countFromDbByDoc} from "test-api-express-mongo/dist/db"
-import {ademeToBlueforestImpactEntries, ademeUnitToGrandeurEq} from "../src/rest/importImpactEntryRest"
+import {ademeToBlueforestImpactEntries, ademeUnitToGrandeurEq} from "../src/service/impactEntryService"
 
 describe('Imports utils', function () {
     
@@ -91,5 +91,4 @@ describe('Imports utils', function () {
         expect(ademeToBlueforestImpactEntries([ademe])).to.deep.equal([blueforest])
     })
     
-    it('post ademe impact entry file', withTest(postAdemeImpactEntryFileSpec))
 })

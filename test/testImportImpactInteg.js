@@ -1,26 +1,21 @@
 import {assertDb} from "test-api-express-mongo/dist/db"
 import {init, request, withTest} from "test-api-express-mongo/dist/api"
-import api from "../../../../src"
-import ENV from "../../../../src/env"
-import {cols} from "../../../../src/const/collections"
+import api from "../src"
+import ENV from "../src/env"
+import {cols} from "../src/const/collections"
 import path from 'path'
-import {prixImpactEntry} from "../../../database/impactEntries"
-import {farineTrunk} from "../../../database/gateau"
 import {withIdBqtG} from "test-api-express-mongo/dist/domain"
 import {replaceItem, oneResponse, oneModifiedResponse} from "test-api-express-mongo/dist/domain"
-import {authGod} from "../../../database/users"
-import {postAdemeImpactEntryFileSpec} from "../../../spec/impactEntry/testPostImpactEntrySpec"
-import {postTrunkFileSpec} from "../../../spec/trunk/testPostTrunkSpec"
-import {object, createObjectId} from "test-api-express-mongo/dist/util"
+import {postAdemeImpactEntryFileSpec} from "../spec/testPostImpactEntrySpec"
+import {postTrunkFileSpec} from "../spec/testPostTrunkSpec"
 
 const postImpactPetitFileSpec = {
     req: {
         url: "/api/impactBulk/ademe",
-        headers: authGod,
         method: "POST",
         file: {
             field: "csv.ademe.impact",
-            path: path.resolve("test/files/PETIT_BI_1.09__03_Procedes_Impacts.csv")
+            path: path.resolve("files/PETIT_BI_1.09__03_Procedes_Impacts.csv")
         }
     }
 }
@@ -71,4 +66,6 @@ describe('POST Impact file', function () {
             }
         }
     ]))
+    
+    it('post ademe impact entry file', withTest(postAdemeImpactEntryFileSpec))
 })

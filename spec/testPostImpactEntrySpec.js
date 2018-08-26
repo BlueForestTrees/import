@@ -6,7 +6,7 @@ export const postAdemeImpactEntryFileSpec = {
         method: "POST",
         file: {
             field: "xlsx.ademe.impactEntry",
-            path: path.resolve("test/files/BI_1.09__06_CatImpacts_Details.xlsx")
+            path: path.resolve("files/BI_1.09__06_CatImpacts_Details.xlsx")
         }
     },
     res: {

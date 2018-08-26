@@ -5,6 +5,8 @@ import {grandeur, unit} from "unit-manip"
 import {parse} from "../excel/excel"
 import {cols} from "../collections"
 import {getRandomColor} from "../util/util"
+import {run} from 'express-blueforest'
+import {Router} from "express-blueforest"
 
 const trunks = () => col(cols.TRUNK)
 const cats = () => col(cols.CATEGORIES)
@@ -101,6 +103,9 @@ const erreurGrandeur = shortname => {
     error.status = 422
     throw error
 }
+
+const router = Router()
+module.exports = router
 
 router.post('/api/trunkBulk/ademe',
     fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
