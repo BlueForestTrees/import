@@ -2,7 +2,7 @@ import {Router, run} from 'express-blueforest'
 import fileUpload from "express-fileupload"
 import configure from "items-service"
 import {col, createObjectId} from "mongo-registry"
-import {parse} from "../excel/excel"
+import {parse} from "../parse/excel"
 import {forIn, groupBy} from 'lodash'
 import {cols} from "../collections"
 
@@ -11,7 +11,7 @@ const router = Router()
 module.exports = router
 const categoryService = configure(() => col(cols.CATEGORIES))
 
-router.post('/api/import/categories/ademe',
+router.post('/api/import/ademe/categories',
     fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
     run(({}, req) => importAdemeTrunkCategories(req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data))
 )

@@ -2,7 +2,7 @@ import fileUpload from "express-fileupload"
 import {col} from "mongo-registry"
 import {map, omit} from 'lodash'
 import {grandeur, unit} from "unit-manip"
-import {parse} from "../excel/excel"
+import {parse} from "../parse/excel"
 import {cols} from "../collections"
 import {getRandomColor} from "../util/util"
 import {run} from 'express-blueforest'
@@ -107,7 +107,7 @@ const erreurGrandeur = shortname => {
 const router = Router()
 module.exports = router
 
-router.post('/api/trunkBulk/ademe',
+router.post('/api/import/ademe/trunk',
     fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
     run(({}, req) => importAdemeTrunkEntries(req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data))
 )

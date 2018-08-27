@@ -2568,9 +2568,9 @@ moment@>=2.19.3:
   version "2.22.2"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
 
-mongo-registry@1.0.11:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/mongo-registry/-/mongo-registry-1.0.11.tgz#f8b063c1bdd0b1a2ca38c6ebb22540b97d248000"
+mongo-registry@1.0.12:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/mongo-registry/-/mongo-registry-1.0.12.tgz#b3300de7014d2d8501520361d4495ddd7f3b7ba9"
   dependencies:
     compare-versions "3.3.0"
     fraction.js "4.0.4"
@@ -3578,9 +3578,9 @@ term-size@^1.2.0:
   dependencies:
     execa "^0.7.0"
 
-test-api-express-mongo@1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/test-api-express-mongo/-/test-api-express-mongo-1.0.8.tgz#e991c0d696f730d6995f20d8ae29ca313c94e48d"
+test-api-express-mongo@1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/test-api-express-mongo/-/test-api-express-mongo-1.0.13.tgz#53c5493744dc47386fdca2886cc6719200af64e2"
   dependencies:
     chai "4.1.2"
     chai-http "4.0.0"

@@ -2,7 +2,7 @@ import path from "path"
 
 export const postAdemeImpactEntryFileSpec = {
     req: {
-        url: "/api/impactEntryBulk/ademe",
+        url: "/api/import/ademe/impactEntry",
         method: "POST",
         file: {
             field: "xlsx.ademe.impactEntry",

@@ -1,7 +1,8 @@
 const debug = require('debug')('api:import')
-import {version} from './../package.json'
+import {version, name} from './../package.json'
 
 const ENV = {
+    NAME:name,
     PORT: process.env.PORT || 8080,
     
     REST_PATH: process.env.REST_PATH || "rest",
@@ -17,6 +18,6 @@ const ENV = {
     MORGAN: process.env.MORGAN || ':status :method :url :response-time ms - :res[content-length]',
 }
 
-debug({ENV})
+debug(JSON.stringify(ENV))
 
 export default ENV

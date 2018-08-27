@@ -1,17 +1,17 @@
-import {assertDb} from "test-api-express-mongo/dist/db"
-import {init, request, withTest} from "test-api-express-mongo/dist/api"
+import {assertDb} from "test-api-express-mongo"
+import {init, request, withTest} from "test-api-express-mongo"
 import api from "../src"
 import ENV from "../src/env"
-import {cols} from "../src/const/collections"
+import {cols} from "../src/collections"
 import path from 'path'
-import {withIdBqtG} from "test-api-express-mongo/dist/domain"
-import {replaceItem, oneResponse, oneModifiedResponse} from "test-api-express-mongo/dist/domain"
+import {withIdBqtG} from "test-api-express-mongo"
+import {replaceItem, oneResponse, oneModifiedResponse} from "test-api-express-mongo"
 import {postAdemeImpactEntryFileSpec} from "../spec/testPostImpactEntrySpec"
 import {postTrunkFileSpec} from "../spec/testPostTrunkSpec"
 
 const postImpactPetitFileSpec = {
     req: {
-        url: "/api/impactBulk/ademe",
+        url: "/api/import/ademe/impact",
         method: "POST",
         file: {
             field: "csv.ademe.impact",

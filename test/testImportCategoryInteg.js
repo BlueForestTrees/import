@@ -1,7 +1,7 @@
 import path from 'path'
 import api from "../src"
 import ENV from "../src/env"
-import {init, withTest} from "test-api-express-mongo/dist/api"
+import {init, withTest} from "test-api-express-mongo"
 import {cols} from "../src/collections"
 
 
@@ -11,7 +11,7 @@ describe('Import Categories', function () {
     
     it('POST ademe categories file', withTest({
         req: {
-            url: "/api/import/categories/ademe",
+            url: "/api/import/ademe/categories",
             method: "POST",
             file: {
                 field: "xlsx.ademe.trunk",

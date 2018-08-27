@@ -2,7 +2,7 @@ import path from 'path'
 
 export const postTrunkFileSpec = {
     req: {
-        url: "/api/trunkBulk/ademe",
+        url: "/api/import/ademe/trunk",
         method: "POST",
         file: {
             field: "xlsx.ademe.trunk",

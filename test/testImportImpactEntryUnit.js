@@ -1,11 +1,9 @@
 import {expect} from "chai"
-import {countFromDbByDoc} from "test-api-express-mongo/dist/db"
-import {ademeToBlueforestImpactEntries, ademeUnitToGrandeurEq} from "../src/service/impactEntryService"
+import {countFromDbByDoc} from "test-api-express-mongo"
+import {ademeToBlueforestImpactEntries, ademeUnitToGrandeurEq} from "../src/impact/impactEntryService"
 
 describe('Imports utils', function () {
-    
-    beforeEach(()=>console.log("initServices...?"))
-    
+
     it('convert ademe unit to blueforest unit', () => {
         expect(ademeUnitToGrandeurEq("kg éq. CO2")).to.deep.equal({g: "Mass", eq: "CO2"})
         expect(ademeUnitToGrandeurEq("kg éq.CO2")).to.deep.equal({g: "Mass", eq: "CO2"})

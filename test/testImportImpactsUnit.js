@@ -1,12 +1,12 @@
-import {init} from "test-api-express-mongo/dist/api"
+import {init} from "test-api-express-mongo"
 import ENV from "../src/env"
-import {cols} from "../src/const/collections"
+import {cols} from "../src/collections"
 import path from 'path'
 import {expect} from "chai"
-import {countFromDbByDoc} from "test-api-express-mongo/dist/db"
+import {countFromDbByDoc} from "test-api-express-mongo"
 import api from "../src/index"
 import fs from 'fs'
-import {importAdemeImpactEntries} from "../src/service/impactEntryService"
+import {importAdemeImpactEntries} from "../src/impact/impactEntryService"
 
 describe('Imports', function () {
     const impactBuffer = fs.readFileSync(path.resolve("files/BI_1.09__06_CatImpacts_Details.xlsx"))
@@ -14,14 +14,16 @@ describe('Imports', function () {
     beforeEach(init(api, ENV, cols))
 
     it('first impact imports entry', async () => {
-        await importAdemeImpactEntries(impactBuffer)
-        expect(await countFromDbByDoc(cols.IMPACT_ENTRY, {origin: "ADEME"})).to.equal(27)
+        const actual = await importAdemeImpactEntries(impactBuffer)
+
+        expect(actual.length).to.equal(27)
+
     })
     it('two impact imports entry', async () => {
         await importAdemeImpactEntries(impactBuffer)
-        await importAdemeImpactEntries(impactBuffer)
+        const actual = await importAdemeImpactEntries(impactBuffer)
 
-        expect(await countFromDbByDoc(cols.IMPACT_ENTRY, {origin: "ADEME"})).to.equal(27)
+        expect(actual.length).to.equal(27)
     })
 
 

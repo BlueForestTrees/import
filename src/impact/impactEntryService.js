@@ -1,7 +1,7 @@
 import {map} from "lodash"
 import damages from "../const/damages"
 import {grandeur} from "unit-manip"
-import {parse} from "../excel/excel"
+import {parse} from "../parse/excel"
 
 const parseDesc = {
     firstDocAt: 3,
