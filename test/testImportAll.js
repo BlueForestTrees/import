@@ -8,7 +8,16 @@ describe('POST ALL', function () {
     
     beforeEach(init(api, ENV, cols))
     
-    it('big post all', withTest([
+    it('IMPORT ALL', withTest([
+        {
+            req: {
+            url: "/api/import/ademe/categories",
+                method: "POST",
+                file: {
+                field: "xlsx.ademe.trunk",
+                    path: path.resolve("files/BI_1.09__02_Procedes_Details.xlsx")
+            }
+        }},
         {
             req: {
                 url: "/api/import/ademe/trunk",
@@ -31,7 +40,7 @@ describe('POST ALL', function () {
         },
         {
             req: {
-                url: "/api/import/ademe/impactBulk",
+                url: "/api/import/ademe/impact",
                 method: "POST",
                 file: {
                     field: "csv.ademe.impact",

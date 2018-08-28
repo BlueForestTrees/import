@@ -9,7 +9,7 @@ describe('Import Categories', function () {
     
     beforeEach(init(api, ENV, {CAT: cols.CATEGORIES}))
     
-    it('POST ademe categories file', withTest({
+    it('CATEGORIES', withTest({
         req: {
             url: "/api/import/ademe/categories",
             method: "POST",
