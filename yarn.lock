@@ -1451,7 +1451,7 @@ event-stream@~3.3.0:
     stream-combiner "~0.0.4"
     through "~2.3.1"
 
-exceljs@^1.6.0:
+exceljs@1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/exceljs/-/exceljs-1.6.0.tgz#a89aa0f62360226a714ac3cf3079fb15742aa641"
   dependencies:
@@ -2231,10 +2231,11 @@ isobject@^3.0.0, isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
 
-items-service@1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/items-service/-/items-service-1.0.9.tgz#cf4783e83fb6cbf32280361adc587d4c59cab040"
+items-service@1.0.10:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/items-service/-/items-service-1.0.11.tgz#8044d8fd9291e17c0c4202213cb3feb1f89f2187"
   dependencies:
+    debug "^3.1.0"
     fraction.js "4.0.9"
     regex-escape "3.4.8"
 
@@ -3695,7 +3696,7 @@ unique-string@^1.0.0:
   dependencies:
     crypto-random-string "^1.0.0"
 
-unit-manip@^1.0.7:
+unit-manip@1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/unit-manip/-/unit-manip-1.0.7.tgz#b1756875a50705a82d9f15a92765b1e671c2143f"
   dependencies:
