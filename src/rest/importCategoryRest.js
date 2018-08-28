@@ -34,10 +34,12 @@ export const importAdemeTrunkCategories = async buffer => {
     return categoryService.bulkWrite(bfCats)
 }
 
+const ignored = ["produit intermédiaire","pas de valeur"]
+
 const ademeToBfCats = (pCat, rawCats, catPath, ci, toImport) => {
     forIn(groupBy(rawCats, rawCats => rawCats[catPath[ci]]),
         (subcats, catName) => {
-            if (catName !== "pas de valeur") {
+            if (ignored.indexOf(catName) === -1) {
                 let cat = {_id: createObjectId(), pid: pCat, name: catName, color: getRandomColor()}
                 toImport.push({insertOne: cat})
                 if (ci + 1 < catPath.length) {
