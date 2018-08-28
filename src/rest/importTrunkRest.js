@@ -54,26 +54,26 @@ const parseDesc = {
     ]
 }
 
-const resolveCategorie = name => cats().findOne({name})
+const resolveCategorie = filter => cats().findOne(filter)
 
 const resolveCategories = async raw => {
     const categories = {}
-    const c1 = await resolveCategorie(raw["Catégorie 1"])
-    if (c1)
+    const c1 = await resolveCategorie({name:raw["Catégorie 1"], pid:null})
+    if (c1) {
         categories.c1 = c1._id
-
-    const c2 = await resolveCategorie(raw["Catégorie 2"])
-    if (c2)
-        categories.c2 = c2._id
-
-    const c3 = await resolveCategorie(raw["Catégorie 3"])
-    if (c3)
-        categories.c3 = c3._id
-
-    const c4 = await resolveCategorie(raw["Catégorie 4"])
-    if(c4)
-        categories.c4 = c4._id
-
+        const c2 = await resolveCategorie({name: raw["Catégorie 2"], pid: c1._id})
+        if (c2) {
+            categories.c2 = c2._id
+            const c3 = await resolveCategorie({name: raw["Catégorie 3"], pid: c2._id})
+            if (c3) {
+                categories.c3 = c3._id
+                const c4 = await resolveCategorie({name: raw["Catégorie 4"], pid: c3._id})
+                if (c4) {
+                    categories.c4 = c4._id
+                }
+            }
+        }
+    }
     return categories
 }
 
