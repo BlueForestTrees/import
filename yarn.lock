@@ -2231,11 +2231,11 @@ isobject@^3.0.0, isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
 
-items-service@1.0.10:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/items-service/-/items-service-1.0.11.tgz#8044d8fd9291e17c0c4202213cb3feb1f89f2187"
+items-service@1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/items-service/-/items-service-1.0.13.tgz#2549b4dce0e4c1887751aa5ea545e0be32555375"
   dependencies:
-    debug "^3.1.0"
+    debug "3.1.0"
     fraction.js "4.0.9"
     regex-escape "3.4.8"
 
