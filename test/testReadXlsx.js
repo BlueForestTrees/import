@@ -2,7 +2,7 @@ import Excel from "exceljs"
 
 import {expect} from "chai"
 import fs from "fs"
-import {parse, parseDocument} from "../../trees/src/util/excel"
+import {parse, parseDocument} from "../src/parse/excel"
 
 describe('xlsx read', function () {
 

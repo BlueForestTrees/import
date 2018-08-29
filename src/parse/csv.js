@@ -1,5 +1,5 @@
-import {streamIt} from "../../../trees/src/util/streams"
 import readline from 'readline'
+import {streamIt} from "./streams"
 
 export const parseImpactCsv = async buffer => await new Promise(function (resolve) {
     const rl = readline.createInterface({input: streamIt(buffer)})
