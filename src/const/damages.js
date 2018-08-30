@@ -1,1 +1,1 @@
-export default ["PDF","CTUe","CTUh","DALY","PNOF"]
+export default ["PDF","CTUe","CTUh","DALY","PNOF", "$"]
