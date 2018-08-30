@@ -10,7 +10,8 @@
     "start": "node index.js",
     "build": "rimraf dist && babel src --out-dir dist/js && copyfiles etc/** dist",
     "dev": "node --version && cross-env DEBUG=api:* PORT=8082 REST_PATH=src/rest nodemon src/index.js --exec babel-node",
-    "test": "cross-env DEBUG=api:*,test:* NODE_ENV=test PORT=9002 REST_PATH=src/rest mocha --recursive --require babel-register --exit \"test/**/*.js\""
+    "test": "cross-env DEBUG=api:*,test:* NODE_ENV=test PORT=9002 REST_PATH=src/rest mocha --recursive --require babel-register --exit \"test/**/*.js\"",
+    "importAll": "cross-env DEBUG=api:*,test:* NODE_ENV=test PORT=9002 REST_PATH=src/rest mocha --recursive --require babel-register --exit \"test/testImportAll.js\""
   },
   "devDependencies": {
     "babel-cli": "6.26.0",
