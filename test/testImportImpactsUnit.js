@@ -6,7 +6,7 @@ import {expect} from "chai"
 import {countFromDbByDoc} from "test-api-express-mongo"
 import api from "../src/index"
 import fs from 'fs'
-import {importAdemeImpactEntries} from "../src/impact/impactEntryService"
+import {importAdemeImpactEntries} from "../src/impact/importImpactEntryService"
 
 describe('Imports', function () {
     const impactBuffer = fs.readFileSync(path.resolve("files/BI_1.09__06_CatImpacts_Details.xlsx"))

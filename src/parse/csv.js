@@ -1,6 +1,26 @@
 import readline from 'readline'
 import {streamIt} from "./streams"
 
+export const parseZoneGeoCsv = async buffer => await new Promise(function (resolve) {
+    const rl = readline.createInterface({input: streamIt(buffer)})
+
+    const zones = []
+    let head = true
+
+    rl.on('line', (rawLine) => {
+        if (!head) {
+            const line = tagLine(rawLine)
+            zones.push({code:line.next(), label:line.next()})
+        } else {
+            head = false
+        }
+    })
+
+    rl.on('close', () => {
+        resolve(zones)
+    })
+})
+
 export const parseImpactCsv = async buffer => await new Promise(function (resolve) {
     const rl = readline.createInterface({input: streamIt(buffer)})
     

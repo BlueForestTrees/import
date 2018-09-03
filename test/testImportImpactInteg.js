@@ -61,7 +61,7 @@ describe('POST Impact file', function () {
             res: {
                 bodypath: [
                     {path: "$.ok", value: 1},
-                    {path: "$.nInserted", value: 2}
+                    {path: "$.nInserted", value: 4}
                 ]
             }
         }

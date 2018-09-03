@@ -8,37 +8,41 @@ import fileUpload from "express-fileupload"
 import {map, filter} from 'lodash'
 import {createObjectId} from "mongo-registry"
 import {parseImpactCsv} from "../parse/csv"
+import {chunkify} from "../util/util"
 
 const router = Router()
 const impactService = configure(() => col(cols.IMPACT))
+const damageService = configure(() => col(cols.DAMAGE))
 const impactEntryService = configure(() => col(cols.IMPACT_ENTRY))
+const damageEntryService = configure(() => col(cols.DAMAGE_ENTRY))
 const trunkService = configure(() => col(cols.TRUNK))
 
 module.exports = router
 
 const importImpactsByChunks = async raws => {
-    const length = raws.length
-    let insertions = 0
-    for (let i = 0, chunk = 100; i < length; i += chunk) {
-        let impactsEtDamages = await ademeToBlueforestImpact(raws.slice(i, i + chunk))
-        let impacts = filter(impactsEtDamages, i => {
-            let keep = !i.insertOne.damage
-            delete i.insertOne.damage
-            return keep
-        })
+    const chunk = chunkify(raws,100)
+    let c
+    while(c = chunk()){
+        let impactsEtDamages = await ademeToBlueforestImpact(c)
+
+        let impacts = filter(impactsEtDamages, i => i.insertOne.impactId)
         if (impacts.length > 0) {
             await impactService.bulkWrite(impacts)
-            insertions += impacts.length
+        }
+
+        let damages = filter(impactsEtDamages, i => i.insertOne.damageId)
+        if (damages.length > 0) {
+            await damageService.bulkWrite(damages)
         }
     }
-    return {ok: 1, nInserted: insertions}
+    return {ok: 1, nInserted: raws.length}
 }
 
 const ademeToBlueforestImpact = raws => Promise.all(map(raws, async raw => ({
     insertOne: {
         _id: createObjectId(),
         ...await resolveTrunk(raw),
-        ...await resolveImpactEntry(raw),
+        ...await resolveImpactOrDamageEntry(raw),
         bqt: raw.bqt
     }
 })))
@@ -47,9 +51,19 @@ const resolveTrunk = async raw => {
     const doc = (await trunkService.findOne({externId: raw.trunkExternId}, {_id: 1}))
     return (doc && {trunkId: doc._id}) || {trunkExternId: raw.trunkExternId}
 }
-const resolveImpactEntry = async raw => {
-    const doc = await impactEntryService.findOne({externId: raw.impactExternId}, {_id: 1, damage: 1})
-    return (doc && {impactId: doc._id, damage: doc.damage}) || {impactExternId: raw.impactExternId}
+const resolveImpactOrDamageEntry = async raw => {
+    let result = null
+
+    let entry = await impactEntryService.findOne({externId: raw.impactExternId}, {_id: 1})
+    if(entry) {
+        result = {impactId: entry._id}
+    }else if(entry = await damageEntryService.findOne({externId: raw.impactExternId}, {_id: 1})){
+        result = {damageId: entry._id}
+    }else{
+        result = {externId: raw.impactExternId}
+    }
+
+    return result
 }
 
 router.post('/api/import/ademe/impact',

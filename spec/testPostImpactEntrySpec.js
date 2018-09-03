@@ -11,9 +11,7 @@ export const postAdemeImpactEntryFileSpec = {
     },
     res: {
         bodypath: [
-            {path: "$.ok", value: [true]},
-            {path: "$.upsertions", value: [27]},
-            {path: "$.insertions", value: [0]},
+            {path: "$.ok", value: 1}
         ]
     }
 }
