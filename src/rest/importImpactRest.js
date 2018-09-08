@@ -1,6 +1,6 @@
 import {run} from 'express-blueforest'
 import {Router} from "express-blueforest"
-import {cols} from "../collections"
+import {cols, neverClearedCols} from "../collections"
 import {col} from "mongo-registry"
 import configure from "items-service"
 import fileUpload from "express-fileupload"
@@ -19,28 +19,42 @@ const trunkService = configure(() => col(cols.TRUNK))
 
 module.exports = router
 
+const users = () => col(neverClearedCols.USER)
 const importImpactsByChunks = async raws => {
-    const chunk = chunkify(raws,100)
+
+    const ademeUser = await users().findOne({shortname: "ADEME"}, {_id: 1})
+
+    if (!ademeUser._id) {
+        throw {code: "bf500"}
+    }
+
+    let totalImpacts = 0
+    let totalDamages = 0
+
+    const chunk = chunkify(raws, 100)
     let c
-    while(c = chunk()){
-        let impactsEtDamages = await ademeToBlueforestImpact(c)
+    while (c = chunk()) {
+        let impactsEtDamages = await ademeToBlueforestImpact(ademeUser, c)
 
         let impacts = filter(impactsEtDamages, i => i.insertOne.impactId)
         if (impacts.length > 0) {
             await impactService.bulkWrite(impacts)
+            totalImpacts += impacts.length
         }
 
         let damages = filter(impactsEtDamages, i => i.insertOne.damageId)
         if (damages.length > 0) {
             await damageService.bulkWrite(damages)
+            totalDamages += impacts.length
         }
     }
-    return {ok: 1, nInserted: raws.length}
+    return {ok: 1, impacts: totalImpacts, damages:totalDamages}
 }
 
-const ademeToBlueforestImpact = raws => Promise.all(map(raws, async raw => ({
+const ademeToBlueforestImpact = (ademeUser, raws) => Promise.all(map(raws, async raw => ({
     insertOne: {
         _id: createObjectId(),
+        oid: ademeUser._id,
         ...await resolveTrunk(raw),
         ...await resolveImpactOrDamageEntry(raw),
         bqt: raw.bqt
@@ -55,11 +69,11 @@ const resolveImpactOrDamageEntry = async raw => {
     let result = null
 
     let entry = await impactEntryService.findOne({externId: raw.impactExternId}, {_id: 1})
-    if(entry) {
+    if (entry) {
         result = {impactId: entry._id}
-    }else if(entry = await damageEntryService.findOne({externId: raw.impactExternId}, {_id: 1})){
+    } else if (entry = await damageEntryService.findOne({externId: raw.impactExternId}, {_id: 1})) {
         result = {damageId: entry._id}
-    }else{
+    } else {
         result = {externId: raw.impactExternId}
     }
 

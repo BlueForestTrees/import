@@ -1,15 +1,19 @@
 import {expect} from "chai"
-import {countFromDbByDoc} from "test-api-express-mongo"
+import {countFromDbByDoc, init} from "test-api-express-mongo"
 import {ademeToBlueforestImpactEntries, ademeUnitToGrandeurEq} from "../src/impact/importImpactEntryService"
+import {loadGrandeurs} from "../src/grandeur/grandeurService"
+import {initUnits} from "unit-manip"
 
 describe('Imports utils', function () {
+
+    beforeEach(() => loadGrandeurs().then(initUnits))
 
     it('convert ademe unit to blueforest unit', () => {
         expect(ademeUnitToGrandeurEq("kg éq. CO2")).to.deep.equal({g: "Mass", eq: "CO2"})
         expect(ademeUnitToGrandeurEq("kg éq.CO2")).to.deep.equal({g: "Mass", eq: "CO2"})
         expect(ademeUnitToGrandeurEq("kg")).to.deep.equal({g: "Mass"})
     })
-    
+
     it('convert ademe impact parse to blueforest impact', () => {
         const ademe = {
             externId: '370960f4-0a3a-415d-bf3e-e5ce63160bb9',
@@ -35,8 +39,8 @@ describe('Imports utils', function () {
                 update: {
                     $set: {
                         color: "#696969",
-                        damage: false,
                         eq: "CO2",
+                        oid:69,
                         externId: "370960f4-0a3a-415d-bf3e-e5ce63160bb9",
                         g: "Mass",
                         name: "Changement climatique",
@@ -47,9 +51,9 @@ describe('Imports utils', function () {
                 upsert: true
             }
         }
-        expect(ademeToBlueforestImpactEntries([ademe])).to.deep.equal([blueforest])
+        expect(ademeToBlueforestImpactEntries({_id: 69}, [ademe])).to.deep.equal([blueforest])
     })
-    
+
     it('convert ademe damage parse to blueforest impact', () => {
         const ademe = {
             externId: '370960f4-0a3a-415d-bf3e-e5ce63160bb9',
@@ -75,6 +79,7 @@ describe('Imports utils', function () {
                 update: {
                     $set: {
                         color: "#696969",
+                        oid:67,
                         damage: true,
                         externId: "370960f4-0a3a-415d-bf3e-e5ce63160bb9",
                         g: "PDF",
@@ -86,7 +91,7 @@ describe('Imports utils', function () {
                 upsert: true
             }
         }
-        expect(ademeToBlueforestImpactEntries([ademe])).to.deep.equal([blueforest])
+        expect(ademeToBlueforestImpactEntries({_id: 67}, [ademe])).to.deep.equal([blueforest])
     })
-    
+
 })

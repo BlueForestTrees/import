@@ -23,29 +23,31 @@ const parseDesc = {
     ]
 }
 
-export const ademeToBlueforestImpactEntries = raws => map(raws, raw => {
-    const impactEntry = {updateOne: {
-        filter: {externId: raw.externId},
-        update: {
-            $set: {
-                externId: raw.externId,
-                name: raw.nom,
-                ...ademeUnitToGrandeurEq(raw['Unité de référence']),
-                color: "#696969",
-                origin: "ADEME",
-                raw
-            }
-        },
-        upsert: true
-    }}
-    if(damages.indexOf(raw['Unité de référence']) !== -1) {
+export const ademeToBlueforestImpactEntries = (ademeUser, raws) => map(raws, raw => {
+    const impactEntry = {
+        updateOne: {
+            filter: {externId: raw.externId},
+            update: {
+                $set: {
+                    externId: raw.externId,
+                    name: raw.nom,
+                    ...ademeUnitToGrandeurEq(raw['Unité de référence']),
+                    color: "#696969",
+                    origin: "ADEME",
+                    raw,
+                    oid: ademeUser._id
+                }
+            },
+            upsert: true
+        }
+    }
+    if (damages.indexOf(raw['Unité de référence']) !== -1) {
         impactEntry.updateOne.update.$set.damage = true
     }
     return impactEntry
 })
 
 export const ademeUnitToGrandeurEq = ademeUnit => {
-    // if (!ademeUnit) return null
     const splitted = ademeUnit.split("éq.")
     if (splitted.length === 1) {
         return {g: grandeur(ademeUnit)}
@@ -54,4 +56,4 @@ export const ademeUnitToGrandeurEq = ademeUnit => {
     }
 }
 
-export const importAdemeImpactEntries = async buffer => ademeToBlueforestImpactEntries(await parse(buffer, parseDesc))
+export const importAdemeImpactEntries = async ({buffer, ademeUser}) => ademeToBlueforestImpactEntries(ademeUser, await parse(buffer, parseDesc))

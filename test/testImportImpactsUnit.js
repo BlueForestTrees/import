@@ -14,14 +14,14 @@ describe('Imports', function () {
     beforeEach(init(api, ENV, cols))
 
     it('first impact imports entry', async () => {
-        const actual = await importAdemeImpactEntries(impactBuffer)
+        const actual = await importAdemeImpactEntries({buffer:impactBuffer, ademeUser:{_id:11}})
 
         expect(actual.length).to.equal(27)
 
     })
     it('two impact imports entry', async () => {
-        await importAdemeImpactEntries(impactBuffer)
-        const actual = await importAdemeImpactEntries(impactBuffer)
+        await importAdemeImpactEntries({buffer:impactBuffer, ademeUser:{_id:11}})
+        const actual = await importAdemeImpactEntries({buffer:impactBuffer, ademeUser:{_id:11}})
 
         expect(actual.length).to.equal(27)
     })

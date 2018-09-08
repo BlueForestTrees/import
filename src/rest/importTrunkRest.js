@@ -3,16 +3,24 @@ import {col} from "mongo-registry"
 import {map, omit} from 'lodash'
 import {grandeur, unit} from "unit-manip"
 import {parse} from "../parse/excel"
-import {cols} from "../collections"
+import {cols, neverClearedCols} from "../collections"
 import {getRandomColor} from "../util/util"
 import {run} from 'express-blueforest'
 import {Router} from "express-blueforest"
 
+const users = () => col(neverClearedCols.USER)
 const trunks = () => col(cols.TRUNK)
 const cats = () => col(cols.CATEGORIES)
 
 const importAdemeTrunkEntries = async buffer => {
-    const result = await trunks().bulkWrite(await ademeToBlueforestTrunk(await parse(buffer, parseDesc)), {ordered: false})
+
+    const ademeUser = await users().findOne({shortname: "ADEME"}, {_id: 1})
+
+    if (!ademeUser._id) {
+        throw {code: "bf500"}
+    }
+
+    const result = await trunks().bulkWrite(await ademeToBlueforestTrunk(await parse(buffer, parseDesc), ademeUser._id), {ordered: false})
     return {
         ok: result.ok === 1,
         insertions: result.nInserted,
@@ -40,17 +48,64 @@ const parseDesc = {
         {idx: 23, fieldName: "Unité", xlsName: " Unité ", under: "Quantité"},
         {idx: 25, fieldName: "Année de référence", xlsName: " Année de référence ", under: "Temps"},
         {idx: 26, fieldName: "Valable jusqu'au", xlsName: " Jeu de données valable jusqu'au ", under: "Temps"},
-        {idx: 27, fieldName: "Description représentative du temps", xlsName: " Description représentative du temps ", under: "Temps"},
+        {
+            idx: 27,
+            fieldName: "Description représentative du temps",
+            xlsName: " Description représentative du temps ",
+            under: "Temps"
+        },
         {idx: 29, fieldName: "Localisation", xlsName: " Localisation "},
-        {idx: 31, fieldName: "Description", xlsName: " Description de la technologie et des processus inclus ", under: "Technologie"},
-        {idx: 32, fieldName: "Objectif", xlsName: " Objectif technique du produit ou du procédé ", under: "Technologie"},
+        {
+            idx: 31,
+            fieldName: "Description",
+            xlsName: " Description de la technologie et des processus inclus ",
+            under: "Technologie"
+        },
+        {
+            idx: 32,
+            fieldName: "Objectif",
+            xlsName: " Objectif technique du produit ou du procédé ",
+            under: "Technologie"
+        },
         {idx: 33, fieldName: "Diagramme de flux", xlsName: " Diagramme de flux ", under: "Technologie"},
-        
-        {idx: 36, fieldName: "Type de dataset", xlsName: " Type de dataset ", under: "Modélisation et Validation", subunder: "Méthode et allocation LCI"},
-        {idx: 37, fieldName: "Principe de la méthode LCI", xlsName: " Principe de la méthode LCI ", under: "Modélisation et Validation", subunder: "Méthode et allocation LCI"},
-        {idx: 38, fieldName: "Déviations principe", xlsName: " Deviations from LCI method principle ", offsetX: true, under: "Modélisation et Validation", subunder: "Méthode et allocation LCI"},
-        {idx: 39, fieldName: "Approches de la méthode LCI", xlsName: " Approches de la méthode LCI ", under: "Modélisation et Validation", subunder: "Méthode et allocation LCI"},
-        {idx: 40, fieldName: "Déviations approches", xlsName: " Deviations from LCI method approaches ", offsetX: true, under: "Modélisation et Validation", subunder: "Méthode et allocation LCI"},
+
+        {
+            idx: 36,
+            fieldName: "Type de dataset",
+            xlsName: " Type de dataset ",
+            under: "Modélisation et Validation",
+            subunder: "Méthode et allocation LCI"
+        },
+        {
+            idx: 37,
+            fieldName: "Principe de la méthode LCI",
+            xlsName: " Principe de la méthode LCI ",
+            under: "Modélisation et Validation",
+            subunder: "Méthode et allocation LCI"
+        },
+        {
+            idx: 38,
+            fieldName: "Déviations principe",
+            xlsName: " Deviations from LCI method principle ",
+            offsetX: true,
+            under: "Modélisation et Validation",
+            subunder: "Méthode et allocation LCI"
+        },
+        {
+            idx: 39,
+            fieldName: "Approches de la méthode LCI",
+            xlsName: " Approches de la méthode LCI ",
+            under: "Modélisation et Validation",
+            subunder: "Méthode et allocation LCI"
+        },
+        {
+            idx: 40,
+            fieldName: "Déviations approches",
+            xlsName: " Deviations from LCI method approaches ",
+            offsetX: true,
+            under: "Modélisation et Validation",
+            subunder: "Méthode et allocation LCI"
+        },
     ]
 }
 
@@ -58,7 +113,7 @@ const resolveCategorie = filter => cats().findOne(filter)
 
 const resolveCategories = async raw => {
     const categories = {}
-    const c1 = await resolveCategorie({name:raw["Catégorie 1"], pid:null})
+    const c1 = await resolveCategorie({name: raw["Catégorie 1"], pid: null})
     if (c1) {
         categories.c1 = c1._id
         const c2 = await resolveCategorie({name: raw["Catégorie 2"], pid: c1._id})
@@ -77,7 +132,7 @@ const resolveCategories = async raw => {
     return categories
 }
 
-export const ademeToBlueforestTrunk = raws => Promise.all(map(raws, async raw => ({
+export const ademeToBlueforestTrunk = (raws, ownerId) => Promise.all(map(raws, async raw => ({
     updateOne: {
         filter: {externId: raw.externId},
         update: {
@@ -91,7 +146,8 @@ export const ademeToBlueforestTrunk = raws => Promise.all(map(raws, async raw =>
                 cat: await resolveCategories(raw),
                 color: getRandomColor(),
                 origin: "ADEME",
-                raw
+                raw,
+                oid: ownerId
             }
         },
         upsert: true

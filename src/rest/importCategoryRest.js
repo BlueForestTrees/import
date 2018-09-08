@@ -3,13 +3,14 @@ import fileUpload from "express-fileupload"
 import configure from "items-service"
 import {col, createObjectId} from "mongo-registry"
 import {parse} from "../parse/excel"
-import {forIn, groupBy} from 'lodash'
-import {cols} from "../collections"
+import {forIn, groupBy, map} from 'lodash'
+import {cols, neverClearedCols} from "../collections"
 
 const debug = require('debug')('api:categories')
 const router = Router()
 module.exports = router
 const categoryService = configure(() => col(cols.CATEGORIES))
+const users = () => col(neverClearedCols.USER)
 
 router.post('/api/import/ademe/categories',
     fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
@@ -17,7 +18,13 @@ router.post('/api/import/ademe/categories',
 )
 
 export const importAdemeTrunkCategories = async buffer => {
-    
+
+    const ademeUser = await users().findOne({shortname: "ADEME"}, {_id: 1})
+
+    if (!ademeUser._id) {
+        throw {code: "bf500"}
+    }
+
     const parseDesc = {
         firstDocAt: 3,
         fields: [
@@ -27,21 +34,21 @@ export const importAdemeTrunkCategories = async buffer => {
             {idx: 13, fieldName: "Catégorie 4", xlsName: " Catégorisation (niveau 4) "},
         ]
     }
-    
+
     const rawCats = await parse(buffer, parseDesc)
-    const bfCats = ademeToBfCats(null, rawCats, ["Catégorie 1", "Catégorie 2", "Catégorie 3", "Catégorie 4"], 0, [])
-    
+    const bfCats = ademeToBfCats(ademeUser, null, rawCats, ["Catégorie 1", "Catégorie 2", "Catégorie 3", "Catégorie 4"], 0, [])
+
     return categoryService.bulkWrite(bfCats)
 }
 
-const ademeToBfCats = (pCat, rawCats, catPath, ci, toImport) => {
+const ademeToBfCats = (ademeUser, pCat, rawCats, catPath, ci, toImport) => {
     forIn(groupBy(rawCats, rawCats => rawCats[catPath[ci]]),
         (subcats, catName) => {
             if ("pas de valeur" !== catName) {
-                let cat = {_id: createObjectId(), pid: pCat, name: catName, color: getRandomColor()}
+                let cat = {_id: createObjectId(), oid: ademeUser._id, pid: pCat, name: catName, color: getRandomColor()}
                 toImport.push({insertOne: cat})
                 if (ci + 1 < catPath.length) {
-                    ademeToBfCats(cat._id, subcats, catPath, ci + 1, toImport)
+                    ademeToBfCats(ademeUser, cat._id, subcats, catPath, ci + 1, toImport)
                 }
             }
         }
