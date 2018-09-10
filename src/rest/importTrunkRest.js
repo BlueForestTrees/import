@@ -3,18 +3,18 @@ import {col} from "mongo-registry"
 import {map, omit} from 'lodash'
 import {grandeur, unit} from "unit-manip"
 import {parse} from "../parse/excel"
-import {cols, neverClearedCols} from "../collections"
+import {cols} from "../collections"
 import {getRandomColor} from "../util/util"
 import {run} from 'express-blueforest'
 import {Router} from "express-blueforest"
+import {getAdemeUser} from "../api"
 
-const users = () => col(neverClearedCols.USER)
 const trunks = () => col(cols.TRUNK)
 const cats = () => col(cols.CATEGORIES)
 
 const importAdemeTrunkEntries = async buffer => {
 
-    const ademeUser = await users().findOne({shortname: "ADEME"}, {_id: 1})
+    const ademeUser = await getAdemeUser()
 
     if (!ademeUser._id) {
         throw {code: "bf500"}

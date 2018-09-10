@@ -1,6 +1,6 @@
 import {run} from 'express-blueforest'
 import {Router} from "express-blueforest"
-import {cols, neverClearedCols} from "../collections"
+import {cols} from "../collections"
 import {col} from "mongo-registry"
 import configure from "items-service"
 import fileUpload from "express-fileupload"
@@ -9,6 +9,7 @@ import {map, filter} from 'lodash'
 import {createObjectId} from "mongo-registry"
 import {parseImpactCsv} from "../parse/csv"
 import {chunkify} from "../util/util"
+import {getAdemeUser} from "../api"
 
 const router = Router()
 const impactService = configure(() => col(cols.IMPACT))
@@ -19,10 +20,9 @@ const trunkService = configure(() => col(cols.TRUNK))
 
 module.exports = router
 
-const users = () => col(neverClearedCols.USER)
 const importImpactsByChunks = async raws => {
 
-    const ademeUser = await users().findOne({shortname: "ADEME"}, {_id: 1})
+    const ademeUser = await getAdemeUser()
 
     if (!ademeUser._id) {
         throw {code: "bf500"}
@@ -48,7 +48,7 @@ const importImpactsByChunks = async raws => {
             totalDamages += impacts.length
         }
     }
-    return {ok: 1, impacts: totalImpacts, damages:totalDamages}
+    return {ok: 1, impacts: totalImpacts, damages: totalDamages}
 }
 
 const ademeToBlueforestImpact = (ademeUser, raws) => Promise.all(map(raws, async raw => ({

@@ -4,13 +4,13 @@ import configure from "items-service"
 import {col, createObjectId} from "mongo-registry"
 import {parse} from "../parse/excel"
 import {forIn, groupBy, map} from 'lodash'
-import {cols, neverClearedCols} from "../collections"
+import {cols} from "../collections"
+import {getAdemeUser} from "../api"
 
 const debug = require('debug')('api:categories')
 const router = Router()
 module.exports = router
 const categoryService = configure(() => col(cols.CATEGORIES))
-const users = () => col(neverClearedCols.USER)
 
 router.post('/api/import/ademe/categories',
     fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
@@ -19,7 +19,7 @@ router.post('/api/import/ademe/categories',
 
 export const importAdemeTrunkCategories = async buffer => {
 
-    const ademeUser = await users().findOne({shortname: "ADEME"}, {_id: 1})
+    const ademeUser = await getAdemeUser()
 
     if (!ademeUser._id) {
         throw {code: "bf500"}

@@ -7,7 +7,3 @@ export const cols = {
     DAMAGE_ENTRY: 'DamageEntryCollection',
     IMPACT_ENTRY: 'ImpactEntryCollection'
 }
-
-export const neverClearedCols = {
-    USER: 'UserCollection'
-}

@@ -2,15 +2,15 @@ import {run} from 'express-blueforest'
 import {Router} from "express-blueforest"
 import fileUpload from "express-fileupload"
 import {col} from "mongo-registry"
-import {cols, neverClearedCols} from "../collections"
+import {cols} from "../collections"
 import {importAdemeImpactEntries} from "../impact/importImpactEntryService"
 import {forEach} from 'lodash'
+import {getAdemeUser} from "../api"
 
 const router = Router()
 
 module.exports = router
 
-const users = () => col(neverClearedCols.USER)
 const impactEntries = col(cols.IMPACT_ENTRY)
 const damageEntries = col(cols.DAMAGE_ENTRY)
 
@@ -28,7 +28,7 @@ router.post('/api/import/ademe/impactEntry',
     run(
         async ({}, req) => ({
             buffer: req.files.file && req.files.file.data || req.files['xlsx.ademe.impactEntry'].data,
-            ademeUser: await users().findOne({shortname: "ADEME"}, {_id: 1})
+            ademeUser: await getAdemeUser()
         })
     ),
     run(importAdemeImpactEntries),
