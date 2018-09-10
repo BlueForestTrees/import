@@ -19,7 +19,7 @@ const ENV = {
 }
 
 ENV.USER_BASE_URL = {
-    "production": "http://user",
+    "production": process.env.USER_BASE_URL || "http://user:8080",
     "test": "http://localhost:9999",
     "development": "http://localhost:8084"
 }[ENV.NODE_ENV]
