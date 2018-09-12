@@ -1,7 +1,7 @@
 import fileUpload from "express-fileupload"
 import {run} from "express-blueforest"
 import {Router} from "express-blueforest"
-import {parseImpactCsv, parseZoneGeoCsv} from "../parse/csv"
+import {parseImpactCsv, parseZoneGeoCsv} from "../util/csv"
 import {chunkify} from "../util/util"
 import {map} from "lodash"
 import configure from "items-service"

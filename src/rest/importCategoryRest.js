@@ -2,7 +2,7 @@ import {Router, run} from 'express-blueforest'
 import fileUpload from "express-fileupload"
 import configure from "items-service"
 import {col, createObjectId} from "mongo-registry"
-import {parse} from "../parse/excel"
+import {parse} from "../util/excel"
 import {forIn, groupBy, map} from 'lodash'
 import {cols} from "../collections"
 import {getAdemeUser} from "../api"

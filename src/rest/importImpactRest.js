@@ -7,7 +7,7 @@ import fileUpload from "express-fileupload"
 
 import {map, filter} from 'lodash'
 import {createObjectId} from "mongo-registry"
-import {parseImpactCsv} from "../parse/csv"
+import {parseImpactCsv} from "../util/csv"
 import {chunkify} from "../util/util"
 import {getAdemeUser} from "../api"
 

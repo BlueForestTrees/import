@@ -1,5 +1,5 @@
 import fs from "fs"
-import {indexOfWithPairTag, pairTagInside, parseImpactCsv, smartSplit, tagLine} from "../src/parse/csv"
+import {indexOfWithPairTag, pairTagInside, parseImpactCsv, smartSplit, tagLine} from "../src/util/csv"
 import {expect} from 'chai'
 
 let line = "-1-2;0\"00;\"12;34\";5678;1\"\"\"011;1213"
