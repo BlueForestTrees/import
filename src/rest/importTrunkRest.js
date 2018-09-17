@@ -8,6 +8,7 @@ import {getRandomColor} from "../util/util"
 import {run} from 'express-blueforest'
 import {Router} from "express-blueforest"
 import {getAdemeUser} from "../api"
+import {validGod} from "../validations"
 
 const trunks = () => col(cols.TRUNK)
 const cats = () => col(cols.CATEGORIES)
@@ -164,6 +165,7 @@ const router = Router()
 module.exports = router
 
 router.post('/api/import/ademe/trunk',
+    validGod,
     fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
     run(({}, req) => importAdemeTrunkEntries(req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data))
 )

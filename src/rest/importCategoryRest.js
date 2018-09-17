@@ -6,6 +6,7 @@ import {parse} from "../util/excel"
 import {forIn, groupBy, map} from 'lodash'
 import {cols} from "../collections"
 import {getAdemeUser} from "../api"
+import {validGod} from "../validations"
 
 const debug = require('debug')('api:categories')
 const router = Router()
@@ -13,6 +14,7 @@ module.exports = router
 const categoryService = configure(() => col(cols.CATEGORIES))
 
 router.post('/api/import/ademe/categories',
+    validGod,
     fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
     run(({}, req) => importAdemeTrunkCategories(req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data))
 )

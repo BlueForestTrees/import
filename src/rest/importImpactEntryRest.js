@@ -6,6 +6,7 @@ import {cols} from "../collections"
 import {importAdemeImpactEntries} from "../impact/importImpactEntryService"
 import {forEach} from 'lodash'
 import {getAdemeUser} from "../api"
+import {validGod} from "../validations"
 
 const router = Router()
 
@@ -24,6 +25,7 @@ const moveDamages = async () => {
 }
 
 router.post('/api/import/ademe/impactEntry',
+    validGod,
     fileUpload({files: 1, limits: {fileSize: 5 * 1024 * 1024}}),
     run(
         async ({}, req) => ({

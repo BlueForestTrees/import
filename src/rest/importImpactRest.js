@@ -10,6 +10,7 @@ import {createObjectId} from "mongo-registry"
 import {parseImpactCsv} from "../util/csv"
 import {chunkify} from "../util/util"
 import {getAdemeUser} from "../api"
+import {validGod} from "../validations"
 
 const router = Router()
 const impactService = configure(() => col(cols.IMPACT))
@@ -81,6 +82,7 @@ const resolveImpactOrDamageEntry = async raw => {
 }
 
 router.post('/api/import/ademe/impact',
+    validGod,
     fileUpload({files: 1, limits: {fileSize: 5 * 1024 * 1024}}),
     run(({}, req) => parseImpactCsv(req.files.file && req.files.file.data || req.files['csv.ademe.impact'].data)),
     run(importImpactsByChunks)

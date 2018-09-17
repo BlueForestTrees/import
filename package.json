@@ -1,6 +1,6 @@
 {
   "name": "api-import",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "service d'import des bases impact ademe",
   "main": "dist/index.js",
   "repository": "https://github.com/BlueForestTrees/api-import.git",
@@ -39,6 +39,7 @@
     "express-fileupload": "0.4.0",
     "express-validator": "5.3.0",
     "items-service": "1.0.13",
+    "jsonwebtoken": "^8.3.0",
     "lodash": "4.17.10",
     "mongo-registry": "1.0.13",
     "request": "^2.88.0",
