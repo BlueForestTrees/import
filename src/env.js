@@ -3,7 +3,7 @@ import {version, name} from './../package.json'
 
 const ENV = {
     NAME: name,
-    PORT: process.env.PORT || 8080,
+    PORT: process.env.PORT || 80,
 
     REST_PATH: process.env.REST_PATH || "rest",
 
@@ -19,7 +19,7 @@ const ENV = {
 }
 
 ENV.USER_BASE_URL = {
-    "production": process.env.USER_BASE_URL || "http://user:8080",
+    "production": process.env.USER_BASE_URL || "http://user:80",
     "test": "http://localhost:9999",
     "development": "http://localhost:8084"
 }[ENV.NODE_ENV]

@@ -2,8 +2,8 @@ export const cols = {
     TRUNK: 'TrunkCollection',
     ZONES_GEO: 'ZoneGeoCollection',
     CATEGORIES: 'CategoriesCollection',
-    IMPACT: 'ImpactCollection',
-    DAMAGE: 'DamageCollection',
-    DAMAGE_ENTRY: 'DamageEntryCollection',
-    IMPACT_ENTRY: 'ImpactEntryCollection'
+    IMPACT: 'impactCollection',
+    DAMAGE: 'damageCollection',
+    DAMAGE_ENTRY: 'damageEntryCollection',
+    IMPACT_ENTRY: 'impactEntryCollection'
 }
