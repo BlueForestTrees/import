@@ -1,17 +1,16 @@
 import {Router, run} from 'express-blueforest'
 import fileUpload from "express-fileupload"
-import configure from "items-service"
 import {col, createObjectId} from "mongo-registry"
 import {parse} from "../util/excel"
 import {forIn, groupBy, map} from 'lodash'
 import {cols} from "../collections"
-import {getAdemeUser} from "../api"
+import {getAdemeUser, getAdemeUserId} from "../api"
 import {validGod} from "../validations"
 
 const debug = require('debug')('api:categories')
 const router = Router()
 module.exports = router
-const categoryService = configure(() => col(cols.CATEGORIES))
+const categories = () => col(cols.CATEGORIES)
 
 router.post('/api/import/ademe/categories',
     validGod,
@@ -21,11 +20,7 @@ router.post('/api/import/ademe/categories',
 
 export const importAdemeTrunkCategories = async buffer => {
 
-    const ademeUser = await getAdemeUser()
-
-    if (!ademeUser._id) {
-        throw {code: "bf500"}
-    }
+    const ademeUserId = await getAdemeUserId()
 
     const parseDesc = {
         firstDocAt: 3,
@@ -38,19 +33,33 @@ export const importAdemeTrunkCategories = async buffer => {
     }
 
     const rawCats = await parse(buffer, parseDesc)
-    const bfCats = ademeToBfCats(ademeUser, null, rawCats, ["Catégorie 1", "Catégorie 2", "Catégorie 3", "Catégorie 4"], 0, [])
 
-    return categoryService.bulkWrite(bfCats)
+    const ademeCat = await getAdemeCat(ademeUserId)
+
+    const bfCats = ademeToBfCats(ademeUserId, ademeCat._id, rawCats, ["Catégorie 1", "Catégorie 2", "Catégorie 3", "Catégorie 4"], 0, [])
+
+    return categories().bulkWrite(bfCats, {ordered: false})
 }
 
-const ademeToBfCats = (ademeUser, pCat, rawCats, catPath, ci, toImport) => {
+const getAdemeCat = ademeUserId =>
+    categories()
+        .findOne({oid: ademeUserId, name: "ADEME", pid: null})
+        .then(ademeCat => {
+            if (!ademeCat) {
+                ademeCat = {_id: createObjectId(), oid: ademeUserId, pid: null, name: "ADEME", color: "#c91111"}
+                categories().insertOne(ademeCat)
+            }
+            return ademeCat
+        })
+
+const ademeToBfCats = (ademeUserId, pCat, rawCats, catPath, ci, toImport) => {
     forIn(groupBy(rawCats, rawCats => rawCats[catPath[ci]]),
         (subcats, catName) => {
             if ("pas de valeur" !== catName) {
-                let cat = {_id: createObjectId(), oid: ademeUser._id, pid: pCat, name: catName, color: getRandomColor()}
+                let cat = {_id: createObjectId(), oid: ademeUserId, pid: pCat, name: catName, color: getRandomColor()}
                 toImport.push({insertOne: cat})
                 if (ci + 1 < catPath.length) {
-                    ademeToBfCats(ademeUser, cat._id, subcats, catPath, ci + 1, toImport)
+                    ademeToBfCats(ademeUserId, cat._id, subcats, catPath, ci + 1, toImport)
                 }
             }
         }

@@ -9,7 +9,7 @@ import {map, filter} from 'lodash'
 import {createObjectId} from "mongo-registry"
 import {parseImpactCsv} from "../util/csv"
 import {chunkify} from "../util/util"
-import {getAdemeUser} from "../api"
+import {getAdemeUser, getAdemeUserId} from "../api"
 import {validGod} from "../validations"
 
 const router = Router()
@@ -23,11 +23,7 @@ module.exports = router
 
 const importImpactsByChunks = async raws => {
 
-    const ademeUser = await getAdemeUser()
-
-    if (!ademeUser._id) {
-        throw {code: "bf500"}
-    }
+    const ademeUserId = await getAdemeUserId()
 
     let totalImpacts = 0
     let totalDamages = 0
@@ -35,7 +31,7 @@ const importImpactsByChunks = async raws => {
     const chunk = chunkify(raws, 100)
     let c
     while (c = chunk()) {
-        let impactsEtDamages = await ademeToBlueforestImpact(ademeUser, c)
+        let impactsEtDamages = await ademeToBlueforestImpact(ademeUserId, c)
 
         let impacts = filter(impactsEtDamages, i => i.insertOne.impactId)
         if (impacts.length > 0) {
@@ -52,10 +48,10 @@ const importImpactsByChunks = async raws => {
     return {ok: 1, impacts: totalImpacts, damages: totalDamages}
 }
 
-const ademeToBlueforestImpact = (ademeUser, raws) => Promise.all(map(raws, async raw => ({
+const ademeToBlueforestImpact = (ademeUserId, raws) => Promise.all(map(raws, async raw => ({
     insertOne: {
         _id: createObjectId(),
-        oid: ademeUser._id,
+        oid: ademeUserId,
         ...await resolveTrunk(raw),
         ...await resolveImpactOrDamageEntry(raw),
         bqt: raw.bqt

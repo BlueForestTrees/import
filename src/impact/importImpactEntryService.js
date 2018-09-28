@@ -24,7 +24,7 @@ const parseDesc = {
     ]
 }
 
-export const ademeToBlueforestImpactEntries = (ademeUser, raws) => map(raws, raw => {
+export const ademeToBlueforestImpactEntries = (ademeUserId, raws) => map(raws, raw => {
     const impactEntry = {
         updateOne: {
             filter: {externId: raw.externId},
@@ -36,7 +36,7 @@ export const ademeToBlueforestImpactEntries = (ademeUser, raws) => map(raws, raw
                     color: "#696969",
                     origin: "ADEME",
                     raw,
-                    oid: ademeUser._id
+                    oid: ademeUserId
                 }
             },
             upsert: true
@@ -57,4 +57,4 @@ export const ademeUnitToGrandeurEq = ademeUnit => {
     }
 }
 
-export const importAdemeImpactEntries = async ({buffer, ademeUser}) => ademeToBlueforestImpactEntries(ademeUser, await parse(buffer, parseDesc))
+export const importAdemeImpactEntries = async ({buffer, ademeUserId}) => ademeToBlueforestImpactEntries(ademeUserId, await parse(buffer, parseDesc))

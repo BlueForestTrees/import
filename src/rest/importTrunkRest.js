@@ -7,7 +7,7 @@ import {cols} from "../collections"
 import {getRandomColor} from "../util/util"
 import {run} from 'express-blueforest'
 import {Router} from "express-blueforest"
-import {getAdemeUser} from "../api"
+import {getAdemeUserId} from "../api"
 import {validGod} from "../validations"
 
 const trunks = () => col(cols.TRUNK)
@@ -15,13 +15,13 @@ const cats = () => col(cols.CATEGORIES)
 
 const importAdemeTrunkEntries = async buffer => {
 
-    const ademeUser = await getAdemeUser()
+    const ademeUserId = await getAdemeUserId()
 
-    if (!ademeUser._id) {
+    if (!ademeUserId) {
         throw {code: "bf500"}
     }
 
-    const result = await trunks().bulkWrite(await ademeToBlueforestTrunk(await parse(buffer, parseDesc), ademeUser._id), {ordered: false})
+    const result = await trunks().bulkWrite(await ademeToBlueforestTrunk(await parse(buffer, parseDesc), ademeUserId), {ordered: false})
     return {
         ok: result.ok === 1,
         insertions: result.nInserted,
@@ -114,18 +114,22 @@ const resolveCategorie = filter => cats().findOne(filter)
 
 const resolveCategories = async raw => {
     const categories = {}
-    const c1 = await resolveCategorie({name: raw["Catégorie 1"], pid: null})
-    if (c1) {
-        categories.c1 = c1._id
-        const c2 = await resolveCategorie({name: raw["Catégorie 2"], pid: c1._id})
-        if (c2) {
-            categories.c2 = c2._id
-            const c3 = await resolveCategorie({name: raw["Catégorie 3"], pid: c2._id})
-            if (c3) {
-                categories.c3 = c3._id
-                const c4 = await resolveCategorie({name: raw["Catégorie 4"], pid: c3._id})
-                if (c4) {
-                    categories.c4 = c4._id
+    const c0 = await resolveCategorie({name: "ADEME", pid: null})
+    if (c0) {
+        categories.c0 = c0._id
+        const c1 = await resolveCategorie({name: raw["Catégorie 1"], pid: c0._id})
+        if (c1) {
+            categories.c1 = c1._id
+            const c2 = await resolveCategorie({name: raw["Catégorie 2"], pid: c1._id})
+            if (c2) {
+                categories.c2 = c2._id
+                const c3 = await resolveCategorie({name: raw["Catégorie 3"], pid: c2._id})
+                if (c3) {
+                    categories.c3 = c3._id
+                    const c4 = await resolveCategorie({name: raw["Catégorie 4"], pid: c3._id})
+                    if (c4) {
+                        categories.c4 = c4._id
+                    }
                 }
             }
         }

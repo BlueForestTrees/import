@@ -5,7 +5,7 @@ import {col} from "mongo-registry"
 import {cols} from "../collections"
 import {importAdemeImpactEntries} from "../impact/importImpactEntryService"
 import {forEach} from 'lodash'
-import {getAdemeUser} from "../api"
+import {getAdemeUserId} from "../api"
 import {validGod} from "../validations"
 
 const router = Router()
@@ -30,7 +30,7 @@ router.post('/api/import/ademe/impactEntry',
     run(
         async ({}, req) => ({
             buffer: req.files.file && req.files.file.data || req.files['xlsx.ademe.impactEntry'].data,
-            ademeUser: await getAdemeUser()
+            ademeUserId: await getAdemeUserId()
         })
     ),
     run(importAdemeImpactEntries),
