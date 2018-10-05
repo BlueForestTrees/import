@@ -12,13 +12,7 @@ const router = Router()
 module.exports = router
 const categories = () => col(cols.CATEGORIES)
 
-router.post('/api/import/ademe/categories',
-    validGod,
-    fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
-    run(({}, req) => importAdemeTrunkCategories(req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data))
-)
-
-export const importAdemeTrunkCategories = async buffer => {
+const parseAdemeCategories = async buffer => {
 
     const ademeUserId = await getAdemeUserId()
 
@@ -36,14 +30,46 @@ export const importAdemeTrunkCategories = async buffer => {
 
     const ademeCat = await getAdemeCat(ademeUserId)
 
-    const bfCats = ademeToBfCats(ademeUserId, ademeCat._id, rawCats, ["Catégorie 1", "Catégorie 2", "Catégorie 3", "Catégorie 4"], 0, [])
-
-    return categories().bulkWrite(bfCats, {ordered: false})
+    return ademeToBfCats(ademeUserId, ademeCat._id, rawCats, ["Catégorie 1", "Catégorie 2", "Catégorie 3", "Catégorie 4"], 0, [])
 }
 
+const ademeToBfCats = async (ademeUserId, pCat, rawCats, catPath, ci, toImport) => {
+    let cats = groupBy(rawCats, rawCats => rawCats[catPath[ci]])
+
+    await Promise.all(Object.keys(cats).map(async catName => {
+        const subcats = cats[catName]
+        if ("pas de valeur" !== catName) {
+            debug("get cat %o", {pid: pCat, name: catName})
+            let cat = await getCat({pid: pCat, name: catName})
+            if (!cat) {
+                cat = {_id: createObjectId(), oid: ademeUserId, pid: pCat, name: catName, color: getRandomColor()}
+                toImport.push({insertOne: cat})
+            }
+            if (ci + 1 < catPath.length) {
+                await ademeToBfCats(ademeUserId, cat._id, subcats, catPath, ci + 1, toImport)
+            }
+        }
+    }))
+
+    return toImport
+}
+
+const writeCats = async bfCats => {
+    if (bfCats.length > 0) {
+        const write = await categories().bulkWrite(bfCats, {ordered: false})
+        return {
+            inserts: write.result.insertedIds.length,
+            errors: write.result.writeErrors.length
+        }
+    } else {
+        return {inserts: 0, errors: 0}
+    }
+}
+
+const getCat = filter => categories().findOne(filter)
+
 const getAdemeCat = ademeUserId =>
-    categories()
-        .findOne({oid: ademeUserId, name: "ADEME", pid: null})
+    getCat({oid: ademeUserId, name: "ADEME", pid: null})
         .then(ademeCat => {
             if (!ademeCat) {
                 ademeCat = {_id: createObjectId(), oid: ademeUserId, pid: null, name: "ADEME", color: "#c91111"}
@@ -51,21 +77,6 @@ const getAdemeCat = ademeUserId =>
             }
             return ademeCat
         })
-
-const ademeToBfCats = (ademeUserId, pCat, rawCats, catPath, ci, toImport) => {
-    forIn(groupBy(rawCats, rawCats => rawCats[catPath[ci]]),
-        (subcats, catName) => {
-            if ("pas de valeur" !== catName) {
-                let cat = {_id: createObjectId(), oid: ademeUserId, pid: pCat, name: catName, color: getRandomColor()}
-                toImport.push({insertOne: cat})
-                if (ci + 1 < catPath.length) {
-                    ademeToBfCats(ademeUserId, cat._id, subcats, catPath, ci + 1, toImport)
-                }
-            }
-        }
-    )
-    return toImport
-}
 
 const getRandomColor = () => {
     const letters = '0123456789ABCDEF'
@@ -75,3 +86,11 @@ const getRandomColor = () => {
     }
     return color
 }
+
+router.post('/api/import/ademe/categories',
+    validGod,
+    fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
+    run(({}, req) => req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data),
+    run(parseAdemeCategories),
+    run(writeCats)
+)

@@ -39,23 +39,41 @@ describe('Import Categories', function () {
         }
     }))
 
-    it('CATEGORIES', withTest({
-        req: {
-            url: "/api/import/ademe/categories",
-            method: "POST",
-            file: {
-                field: "xlsx.ademe.trunk",
-                path: path.resolve("files/CUT_BIG_BI_1.09__02_Procedes_Details.xlsx")
+    it('CATEGORIES', withTest([
+        {
+            req: {
+                url: "/api/import/ademe/categories",
+                method: "POST",
+                file: {
+                    field: "xlsx.ademe.trunk",
+                    path: path.resolve("files/CUT_BIG_BI_1.09__02_Procedes_Details.xlsx")
+                },
+                headers: authGod
             },
-            headers: authGod
+            res: {
+                bodypath: [
+                    {path: "$.errors", value: 0},
+                    {path: "$.inserts", value: 25},
+                ]
+            }
         },
-        res: {
-            bodypath: [
-                {path: "$.ok", value: 1},
-                {path: "$.writeErrors", value: [[]]},
-                {path: "$.insertedIds.length", value: 25},
-            ]
+        {
+            req: {
+                url: "/api/import/ademe/categories",
+                method: "POST",
+                file: {
+                    field: "xlsx.ademe.trunk",
+                    path: path.resolve("files/CUT_BIG_BI_1.09__02_Procedes_Details.xlsx")
+                },
+                headers: authGod
+            },
+            res: {
+                bodypath: [
+                    {path: "$.errors", value: 0},
+                    {path: "$.inserts", value: 0},
+                ]
+            }
         }
-    }))
+    ]))
 
 })
