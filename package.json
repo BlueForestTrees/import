@@ -1,6 +1,6 @@
 {
   "name": "api-import",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "service d'import des bases impact ademe",
   "main": "dist/index.js",
   "repository": "https://github.com/BlueForestTrees/api-import.git",
@@ -35,7 +35,7 @@
     "cross-env": "5.2.0",
     "debug": "3.1.0",
     "exceljs": "1.6.0",
-    "express-blueforest": "1.0.15",
+    "express-blueforest": "1.0.18",
     "express-fileupload": "0.4.0",
     "express-validator": "5.3.0",
     "items-service": "1.0.13",

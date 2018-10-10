@@ -33,13 +33,13 @@ const importImpactsByChunks = async raws => {
     while (c = chunk()) {
         let impactsEtDamages = await ademeToBlueforestImpact(ademeUserId, c)
 
-        let impacts = filter(impactsEtDamages, i => i.insertOne.impactId)
+        let impacts = filter(impactsEtDamages, i => i.updateOne.filter.impactId)
         if (impacts.length > 0) {
             await impactService.bulkWrite(impacts)
             totalImpacts += impacts.length
         }
 
-        let damages = filter(impactsEtDamages, i => i.insertOne.damageId)
+        let damages = filter(impactsEtDamages, i => i.updateOne.filter.damageId)
         if (damages.length > 0) {
             await damageService.bulkWrite(damages)
             totalDamages += impacts.length
@@ -49,20 +49,26 @@ const importImpactsByChunks = async raws => {
 }
 
 const ademeToBlueforestImpact = (ademeUserId, raws) => Promise.all(map(raws, async raw => ({
-    insertOne: {
-        _id: createObjectId(),
-        oid: ademeUserId,
-        ...await resolveTrunk(raw),
-        ...await resolveImpactOrDamageEntry(raw),
-        bqt: raw.bqt
+    updateOne: {
+        filter: {
+            ...await trunkId(raw),
+            ...await impactOrDamageId(raw),
+        },
+        $set:{
+            oid: ademeUserId,
+            bqt: raw.bqt,
+        },
+        $setOnInsert: {
+            _id: createObjectId()
+        }
     }
 })))
 
-const resolveTrunk = async raw => {
+const trunkId = async raw => {
     const doc = (await trunkService.findOne({externId: raw.trunkExternId}, {_id: 1}))
     return (doc && {trunkId: doc._id}) || {trunkExternId: raw.trunkExternId}
 }
-const resolveImpactOrDamageEntry = async raw => {
+const impactOrDamageId = async raw => {
     let result = null
 
     let entry = await impactEntryService.findOne({externId: raw.impactExternId}, {_id: 1})

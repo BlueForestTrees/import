@@ -1,4 +1,5 @@
 import path from 'path'
+import {authGod} from "../test/database/users"
 
 export const postTrunkFileSpec = {
     req: {
@@ -7,7 +8,8 @@ export const postTrunkFileSpec = {
         file: {
             field: "xlsx.ademe.trunk",
             path: path.resolve("files/CUT_BIG_BI_1.09__02_Procedes_Details.xlsx")
-        }
+        },
+        headers:authGod
     },
     res: {
         bodypath: [

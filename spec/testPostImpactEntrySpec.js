@@ -1,4 +1,5 @@
 import path from "path"
+import {authGod} from "../test/database/users"
 
 export const postAdemeImpactEntryFileSpec = {
     req: {
@@ -7,7 +8,8 @@ export const postAdemeImpactEntryFileSpec = {
         file: {
             field: "xlsx.ademe.impactEntry",
             path: path.resolve("files/BI_1.09__06_CatImpacts_Details.xlsx")
-        }
+        },
+        headers:authGod
     },
     res: {
         bodypath: [

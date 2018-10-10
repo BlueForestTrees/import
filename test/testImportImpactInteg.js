@@ -8,6 +8,7 @@ import {withIdBqtG} from "test-api-express-mongo"
 import {replaceItem, oneResponse, oneModifiedResponse} from "test-api-express-mongo"
 import {postAdemeImpactEntryFileSpec} from "../spec/testPostImpactEntrySpec"
 import {postTrunkFileSpec} from "../spec/testPostTrunkSpec"
+import {authGod} from "./database/users"
 
 const postImpactPetitFileSpec = {
     req: {
@@ -16,12 +17,14 @@ const postImpactPetitFileSpec = {
         file: {
             field: "csv.ademe.impact",
             path: path.resolve("files/PETIT_BI_1.09__03_Procedes_Impacts.csv")
-        }
+        },
+        headers: authGod
+
     }
 }
 
 describe('POST Impact file', function () {
-    
+
     beforeEach(init(api, ENV, cols))
 
     it('post ademe impacts entries, trunk then impacts', withTest([
@@ -38,6 +41,6 @@ describe('POST Impact file', function () {
             }
         }
     ]))
-    
+
     it('post ademe impact entry file', withTest(postAdemeImpactEntryFileSpec))
 })
