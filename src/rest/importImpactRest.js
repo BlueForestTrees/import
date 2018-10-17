@@ -13,8 +13,7 @@ import {getAdemeUser, getAdemeUserId} from "../api"
 import {validGod} from "../validations"
 
 const router = Router()
-const impactService = configure(() => col(cols.IMPACT))
-const damageService = configure(() => col(cols.DAMAGE))
+const trunks = () => col(cols.TRUNK)
 const impactEntryService = configure(() => col(cols.IMPACT_ENTRY))
 const damageEntryService = configure(() => col(cols.DAMAGE_ENTRY))
 const trunkService = configure(() => col(cols.TRUNK))
@@ -35,13 +34,13 @@ const importImpactsByChunks = async raws => {
 
         let impacts = filter(impactsEtDamages, i => i.updateOne.filter.impactId)
         if (impacts.length > 0) {
-            await impactService.bulkWrite(impacts)
+            await trunks.bulkWrite(impacts)
             totalImpacts += impacts.length
         }
 
         let damages = filter(impactsEtDamages, i => i.updateOne.filter.damageId)
         if (damages.length > 0) {
-            await damageService.bulkWrite(damages)
+            await trunks.bulkWrite(damages)
             totalDamages += impacts.length
         }
     }
@@ -54,15 +53,21 @@ const ademeToBlueforestImpact = (ademeUserId, raws) => Promise.all(map(raws, asy
             ...await trunkId(raw),
             ...await impactOrDamageId(raw),
         },
-        $set:{
-            oid: ademeUserId,
-            bqt: raw.bqt,
+        update: {
+            $set: {
+                oid: ademeUserId,
+                bqt: raw.bqt,
+            },
+            $setOnInsert: {
+                _id: createObjectId()
+            }
         },
-        $setOnInsert: {
-            _id: createObjectId()
-        }
+        upsert: true
     }
 })))
+
+
+
 
 const trunkId = async raw => {
     const doc = (await trunkService.findOne({externId: raw.trunkExternId}, {_id: 1}))
