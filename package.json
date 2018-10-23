@@ -41,7 +41,7 @@
     "items-service": "1.0.13",
     "jsonwebtoken": "^8.3.0",
     "lodash": "4.17.10",
-    "mongo-registry": "1.0.13",
+    "mongo-registry": "1.0.15",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "unit-manip": "1.0.7",
