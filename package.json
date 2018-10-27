@@ -1,6 +1,6 @@
 {
-  "name": "api-import",
-  "version": "1.0.15",
+  "name": "import",
+  "version": "1.0.16",
   "description": "service d'import des bases impact ademe",
   "main": "dist/index.js",
   "repository": "https://github.com/BlueForestTrees/api-import.git",
