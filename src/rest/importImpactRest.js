@@ -34,13 +34,13 @@ const importImpactsByChunks = async raws => {
 
         let impacts = filter(impactsEtDamages, i => i.updateOne.filter.impactId)
         if (impacts.length > 0) {
-            await trunks.bulkWrite(impacts)
+            await trunks().bulkWrite(impacts)
             totalImpacts += impacts.length
         }
 
         let damages = filter(impactsEtDamages, i => i.updateOne.filter.damageId)
         if (damages.length > 0) {
-            await trunks.bulkWrite(damages)
+            await trunks().bulkWrite(damages)
             totalDamages += impacts.length
         }
     }

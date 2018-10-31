@@ -4,7 +4,7 @@ stages:
   - publishImageConfig:
       dockerfilePath: ./Dockerfile
       buildContext: .
-      tag: blueforest/import:1.0.16
+      tag: blueforest/import:1.0.17
       pushRemote: true
       registry: index.docker.io
 - name: deploy
