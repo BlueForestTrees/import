@@ -3,9 +3,12 @@ import {version, name} from './../package.json'
 
 const ENV = {
     NAME: name,
-    PORT: process.env.PORT || 80,
 
-    REST_PATH: process.env.REST_PATH || "rest",
+    ADEME_CATIMPACT_FILE: process.env.ADEME_CATIMPACT_FILE || "/var/lib/ademe-import/BI_1.09__06_CatImpacts_Details.xlsx",
+    ADEME_CATPRODUIT_FILE: process.env.ADEME_CATPRODUIT_FILE || "/var/lib/ademe-import/BI_1.09__02_Procedes_Details.xlsx",
+    ADEME_PRODUIT_FILE: process.env.ADEME_PRODUIT_FILE || "/var/lib/ademe-import/BI_1.09__02_Procedes_Details.xlsx",
+    ADEME_PRODUIT_IMPACT_FILE: process.env.ADEME_PRODUIT_IMPACT_FILE || "/var/lib/ademe-import/BI_1.09__03_Procedes_Impacts.csv",
+
 
     DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING,
     DB_NAME: process.env.DB_NAME || "BlueForestTreesDB",

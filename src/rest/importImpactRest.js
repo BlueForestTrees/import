@@ -1,47 +1,46 @@
-import {run} from 'express-blueforest'
-import {Router} from "express-blueforest"
 import {cols} from "../collections"
 import {col} from "mongo-registry"
 import configure from "items-service"
-import fileUpload from "express-fileupload"
 
 import {map, filter} from 'lodash'
 import {createObjectId} from "mongo-registry"
 import {parseImpactCsv} from "../util/csv"
 import {chunkify} from "../util/util"
 import {getAdemeUser, getAdemeUserId} from "../api"
-import {validGod} from "../validations"
 
-const router = Router()
-const trunks = () => col(cols.TRUNK)
+const debug = require('debug')('api:import')
+
 const impactEntryService = configure(() => col(cols.IMPACT_ENTRY))
 const damageEntryService = configure(() => col(cols.DAMAGE_ENTRY))
 const trunkService = configure(() => col(cols.TRUNK))
 
-module.exports = router
-
-const importImpactsByChunks = async raws => {
-
+export const importImpactsByChunks = async raws => {
+    const impactCol = col(cols.IMPACT)
+    const damageCol = col(cols.DAMAGE)
     const ademeUserId = await getAdemeUserId()
 
     let totalImpacts = 0
     let totalDamages = 0
 
     const chunk = chunkify(raws, 100)
-    let c
+    let c, i = 0
     while (c = chunk()) {
+        i++
         let impactsEtDamages = await ademeToBlueforestImpact(ademeUserId, c)
 
         let impacts = filter(impactsEtDamages, i => i.updateOne.filter.impactId)
         if (impacts.length > 0) {
-            await trunks().bulkWrite(impacts)
+            await impactCol.bulkWrite(impacts, {ordered: false})
             totalImpacts += impacts.length
         }
 
         let damages = filter(impactsEtDamages, i => i.updateOne.filter.damageId)
         if (damages.length > 0) {
-            await trunks().bulkWrite(damages)
+            await damageCol.bulkWrite(damages, {ordered: false})
             totalDamages += impacts.length
+        }
+        if (i % 50 === 0) {
+            debug("chunk produit ti=%o td=%o", totalImpacts, totalDamages)
         }
     }
     return {ok: 1, impacts: totalImpacts, damages: totalDamages}
@@ -67,8 +66,6 @@ const ademeToBlueforestImpact = (ademeUserId, raws) => Promise.all(map(raws, asy
 })))
 
 
-
-
 const trunkId = async raw => {
     const doc = (await trunkService.findOne({externId: raw.trunkExternId}, {_id: 1}))
     return (doc && {trunkId: doc._id}) || {trunkExternId: raw.trunkExternId}
@@ -87,10 +84,3 @@ const impactOrDamageId = async raw => {
 
     return result
 }
-
-router.post('/api/import/ademe/impact',
-    validGod,
-    fileUpload({files: 1, limits: {fileSize: 5 * 1024 * 1024}}),
-    run(({}, req) => parseImpactCsv(req.files.file && req.files.file.data || req.files['csv.ademe.impact'].data)),
-    run(importImpactsByChunks)
-)

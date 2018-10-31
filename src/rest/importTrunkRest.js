@@ -1,19 +1,15 @@
-import fileUpload from "express-fileupload"
 import {col} from "mongo-registry"
 import {map, omit} from 'lodash'
 import {grandeur, unit} from "unit-manip"
 import {parse} from "../util/excel"
 import {cols} from "../collections"
 import {getRandomColor} from "../util/util"
-import {run} from 'express-blueforest'
-import {Router} from "express-blueforest"
 import {getAdemeUserId} from "../api"
-import {validGod} from "../validations"
 
 const trunks = () => col(cols.TRUNK)
 const cats = () => col(cols.CATEGORIES)
 
-const importAdemeTrunkEntries = async buffer => {
+export const importAdemeTrunkEntries = async buffer => {
 
     const ademeUserId = await getAdemeUserId()
 
@@ -165,11 +161,7 @@ const erreurGrandeur = shortname => {
     throw error
 }
 
-const router = Router()
-module.exports = router
-
-router.post('/api/import/ademe/trunk',
-    validGod,
-    fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
-    run(({}, req) => importAdemeTrunkEntries(req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data))
-)
+// router.post('/api/import/ademe/trunk',
+//     fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
+//     run(({}, req) => importAdemeTrunkEntries(req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data))
+// )

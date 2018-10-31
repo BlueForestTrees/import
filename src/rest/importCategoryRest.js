@@ -1,18 +1,13 @@
-import {Router, run} from 'express-blueforest'
-import fileUpload from "express-fileupload"
 import {col, createObjectId} from "mongo-registry"
 import {parse} from "../util/excel"
-import {forIn, groupBy, map} from 'lodash'
+import {groupBy, map} from 'lodash'
 import {cols} from "../collections"
-import {getAdemeUser, getAdemeUserId} from "../api"
-import {validGod} from "../validations"
+import {getAdemeUserId} from "../api"
 
 const debug = require('debug')('api:categories')
-const router = Router()
-module.exports = router
 const categories = () => col(cols.CATEGORIES)
 
-const parseAdemeCategories = async buffer => {
+export const parseAdemeCategories = async buffer => {
 
     const ademeUserId = await getAdemeUserId()
 
@@ -39,7 +34,6 @@ const ademeToBfCats = async (ademeUserId, pCat, rawCats, catPath, ci, toImport) 
     await Promise.all(Object.keys(cats).map(async catName => {
         const subcats = cats[catName]
         if ("pas de valeur" !== catName) {
-            debug("get cat %o", {pid: pCat, name: catName})
             let cat = await getCat({pid: pCat, name: catName})
             if (!cat) {
                 cat = {_id: createObjectId(), oid: ademeUserId, pid: pCat, name: catName, color: getRandomColor()}
@@ -54,7 +48,7 @@ const ademeToBfCats = async (ademeUserId, pCat, rawCats, catPath, ci, toImport) 
     return toImport
 }
 
-const writeCats = async bfCats => {
+export const writeCats = async bfCats => {
     if (bfCats.length > 0) {
         const write = await categories().bulkWrite(bfCats, {ordered: false})
         return {
@@ -86,11 +80,3 @@ const getRandomColor = () => {
     }
     return color
 }
-
-router.post('/api/import/ademe/categories',
-    validGod,
-    fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
-    run(({}, req) => req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data),
-    run(parseAdemeCategories),
-    run(writeCats)
-)

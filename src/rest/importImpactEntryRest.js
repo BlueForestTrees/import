@@ -1,39 +1,24 @@
-import {run} from 'express-blueforest'
-import {Router} from "express-blueforest"
-import fileUpload from "express-fileupload"
-import {col} from "mongo-registry"
-import {cols} from "../collections"
-import {importAdemeImpactEntries} from "../impact/importImpactEntryService"
-import {forEach} from 'lodash'
-import {getAdemeUserId} from "../api"
-import {validGod} from "../validations"
+import {forEach, map} from 'lodash'
 
-const router = Router()
-
-module.exports = router
-
-const impactEntries = col(cols.IMPACT_ENTRY)
-const damageEntries = col(cols.DAMAGE_ENTRY)
-
-const bulkWrite = data => impactEntries.bulkWrite(data, {ordered: false})
-
-const moveDamages = async () => {
-    const damages = await impactEntries.find({damage: true}).toArray()
-    damageEntries.insertMany(forEach(damages, d => delete d.damage))
-    impactEntries.deleteMany({damage: true})
-    return {ok: 1}
-}
-
-router.post('/api/import/ademe/impactEntry',
-    validGod,
-    fileUpload({files: 1, limits: {fileSize: 5 * 1024 * 1024}}),
-    run(
-        async ({}, req) => ({
-            buffer: req.files.file && req.files.file.data || req.files['xlsx.ademe.impactEntry'].data,
-            ademeUserId: await getAdemeUserId()
+export const moveDamages = (impactEntries, damageEntries) => async () => {
+    const impactdamages = await impactEntries.find({damage: true}).toArray()
+    const damages = map(impactdamages, id => {
+        const _id = id._id
+        delete id.damage
+        delete id._id
+        return ({
+            updateOne: {
+                filter: {externId: id.externId},
+                update: {
+                    $set: id,
+                    $setOnInsert: {_id}
+                },
+                upsert: true
+            }
         })
-    ),
-    run(importAdemeImpactEntries),
-    run(bulkWrite),
-    run(moveDamages)
-)
+    })
+    return {
+        upsertDamages: (await damageEntries.bulkWrite(damages, {ordered: false})).result,
+        deleteImpactDamages: (await impactEntries.deleteMany({damage: true})).result
+    }
+}

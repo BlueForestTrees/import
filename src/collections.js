@@ -3,5 +3,7 @@ export const cols = {
     ZONES_GEO: 'ZoneGeoCollection',
     CATEGORIES: 'CategoriesCollection',
     DAMAGE_ENTRY: 'damageEntryCollection',
-    IMPACT_ENTRY: 'impactEntryCollection'
+    IMPACT_ENTRY: 'impactEntryCollection',
+    DAMAGE: 'damageCollection',
+    IMPACT: 'impactCollection'
 }
