@@ -1,19 +1,16 @@
-import {run} from "express-blueforest"
-import {Router} from "express-blueforest"
 import {parseZoneGeoCsv} from "../util/csv"
 import {chunkify} from "../util/util"
 import {map} from "lodash"
-import configure from "items-service"
 import {col} from "mongo-registry"
 import {cols} from "../collections"
 
-const zonesService = configure(() => col(cols.ZONES_GEO))
+const zonesService = () => col(cols.ZONES_GEO)
 
 const importZoneGeo = async raws => {
     const chunk = chunkify(raws,100)
     let c
     while(c = chunk()){
-        await zonesService.bulkWrite(ademeToBlueforestZone(c))
+        await zonesService().bulkWrite(ademeToBlueforestZone(c))
     }
     return {ok: 1, nInserted: raws.length}
 }

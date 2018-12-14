@@ -56,6 +56,7 @@ export const loadGrandeurs = () => Promise.resolve(
             unit("cL", "Centi-litre", 0.001 * 0.01),
             unit("mL", "Milli-litre", 0.001 * 0.001),
             unit("m3", "Mètre-cube", 1),
+            unit("0.001 m3", "Millième de Mètre-cube", 0.001),
         ]),
         grandeur("Duré", "Durée (sec, min, h...)", [
             unit("sec", "Seconde", 1),
@@ -81,7 +82,8 @@ export const loadGrandeurs = () => Promise.resolve(
             unit("mm", "Millimètre", 0.001),
             unit("cm", "Centimètre", 0.01),
             unit("m", "Mètre", 1),
-            unit("km", "Kilo-mètre", 1000)
+            unit("km", "Kilo-mètre", 1000),
+            unit("1000 m", "Kilo-mètre", 1000)
         ]),
         grandeur("Pri1", "Prix/Coût (€...)", [
             unit("M€", "milliard d'euros", 1000000000),

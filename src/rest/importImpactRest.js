@@ -1,18 +1,12 @@
 import {cols} from "../collections"
 import {col} from "mongo-registry"
-import configure from "items-service"
 
 import {map, filter} from 'lodash'
 import {createObjectId} from "mongo-registry"
-import {parseImpactCsv} from "../util/csv"
 import {chunkify} from "../util/util"
 import {getAdemeUser, getAdemeUserId} from "../api"
 
 const debug = require('debug')('api:import')
-
-const impactEntryService = configure(() => col(cols.IMPACT_ENTRY))
-const damageEntryService = configure(() => col(cols.DAMAGE_ENTRY))
-const trunkService = configure(() => col(cols.TRUNK))
 
 export const importImpactsByChunks = async raws => {
     const impactCol = col(cols.IMPACT)
@@ -40,7 +34,7 @@ export const importImpactsByChunks = async raws => {
             totalDamages += impacts.length
         }
         if (i % 50 === 0) {
-            debug("chunk produit ti=%o td=%o", totalImpacts, totalDamages)
+            debug("chunk produit i=%o/%o ti=%o td=%o", i * 100, raws.length, totalImpacts, totalDamages)
         }
     }
     return {ok: 1, impacts: totalImpacts, damages: totalDamages}
@@ -67,16 +61,16 @@ const ademeToBlueforestImpact = (ademeUserId, raws) => Promise.all(map(raws, asy
 
 
 const trunkId = async raw => {
-    const doc = (await trunkService.findOne({externId: raw.trunkExternId}, {_id: 1}))
+    const doc = (await col(cols.TRUNK).findOne({externId: raw.trunkExternId}, {_id: 1}))
     return (doc && {trunkId: doc._id}) || {trunkExternId: raw.trunkExternId}
 }
 const impactOrDamageId = async raw => {
     let result = null
 
-    let entry = await impactEntryService.findOne({externId: raw.impactExternId}, {_id: 1})
+    let entry = await col(cols.IMPACT_ENTRY).findOne({externId: raw.impactExternId}, {_id: 1})
     if (entry) {
         result = {impactId: entry._id}
-    } else if (entry = await damageEntryService.findOne({externId: raw.impactExternId}, {_id: 1})) {
+    } else if (entry = await col(cols.DAMAGE_ENTRY).findOne({externId: raw.impactExternId}, {_id: 1})) {
         result = {damageId: entry._id}
     } else {
         result = {externId: raw.impactExternId}

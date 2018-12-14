@@ -51,7 +51,7 @@ describe('Imports utils', function () {
                 upsert: true
             }
         }
-        expect(ademeToBlueforestImpactEntries({_id: 69}, [ademe])).to.deep.equal([blueforest])
+        expect(ademeToBlueforestImpactEntries(69, [ademe])).to.deep.equal([blueforest])
     })
 
     it('convert ademe damage parse to blueforest impact', () => {
@@ -91,7 +91,7 @@ describe('Imports utils', function () {
                 upsert: true
             }
         }
-        expect(ademeToBlueforestImpactEntries({_id: 67}, [ademe])).to.deep.equal([blueforest])
+        expect(ademeToBlueforestImpactEntries(67, [ademe])).to.deep.equal([blueforest])
     })
 
 })

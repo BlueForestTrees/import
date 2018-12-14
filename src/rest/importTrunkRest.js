@@ -1,6 +1,6 @@
 import {col} from "mongo-registry"
 import {map, omit} from 'lodash'
-import {grandeur, unit} from "unit-manip"
+import {grandeur, unit, filter} from "unit-manip"
 import {parse} from "../util/excel"
 import {cols} from "../collections"
 import {getRandomColor} from "../util/util"
@@ -17,7 +17,11 @@ export const importAdemeTrunkEntries = async buffer => {
         throw {code: "bf500"}
     }
 
-    const result = await trunks().bulkWrite(await ademeToBlueforestTrunk(await parse(buffer, parseDesc), ademeUserId), {ordered: false})
+    let raws = await parse(buffer, parseDesc)
+
+    let writes = await ademeToBlueforestTrunk(raws, ademeUserId)
+
+    const result = await trunks().bulkWrite(writes, {ordered: false})
     return {
         ok: result.ok === 1,
         insertions: result.nInserted,
@@ -108,7 +112,9 @@ const parseDesc = {
 
 const resolveCategorie = filter => cats().findOne(filter)
 
-const resolveCategories = async raw => {
+const resolveCategories = async raw =>
+
+{
     const categories = {}
     const c0 = await resolveCategorie({name: "ADEME", pid: null})
     if (c0) {
@@ -133,27 +139,46 @@ const resolveCategories = async raw => {
     return categories
 }
 
-export const ademeToBlueforestTrunk = (raws, ownerId) => Promise.all(map(raws, async raw => ({
-    updateOne: {
-        filter: {externId: raw.externId},
-        update: {
-            $set: {
-                externId: raw.externId,
-                name: raw.Nom,
-                quantity: {
-                    bqt: raw["Quantité"]["Quantité de référence"] * unit(raw["Quantité"]["Unité"]).coef,
-                    g: grandeur(raw["Quantité"]["Unité"]) || erreurGrandeur(raw["Quantité"]["Unité"]),
-                },
-                cat: await resolveCategories(raw),
-                color: getRandomColor(),
-                origin: "ADEME",
-                raw,
-                oid: ownerId
-            }
-        },
-        upsert: true
-    }
-})))
+export const ademeToBlueforestTrunk = async (raws, ownerId) =>
+    filter(
+        await Promise.all(
+            map(
+                raws,
+                async raw => {
+                    let rawUnit = raw["Quantité"]["Unité"]
+                    let u = unit(rawUnit)
+
+                    if (!u) {
+                        console.warn(`unité inconnue "${rawUnit}" dans ${JSON.stringify(raw)}`)
+                        return null
+                    }
+
+                    return {
+                        updateOne: {
+                            filter: {externId: raw.externId},
+                            update: {
+                                $set: {
+                                    externId: raw.externId,
+                                    name: raw.Nom,
+                                    quantity: {
+                                        bqt: raw["Quantité"]["Quantité de référence"] * u.coef,
+                                        g: grandeur(rawUnit) || erreurGrandeur(rawUnit),
+                                    },
+                                    cat: await resolveCategories(raw),
+                                    color: getRandomColor(),
+                                    origin: "ADEME",
+                                    raw,
+                                    oid: ownerId
+                                }
+                            },
+                            upsert: true
+                        }
+                    }
+                }
+            )
+        ),
+        o => o
+    )
 
 const erreurGrandeur = shortname => {
     const error = new Error(`grandeur non trouvée pour l'unité "${shortname}"`)

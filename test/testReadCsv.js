@@ -4,10 +4,12 @@ import {expect} from 'chai'
 
 let line = "-1-2;0\"00;\"12;34\";5678;1\"\"\"011;1213"
 
+const version = "1.09"
+
 describe('csv', function () {
     it('parse an entire csv file', async () => {
         
-        const impacts = await parseImpactCsv(fs.readFileSync("files/PETIT_BI_1.09__03_Procedes_Impacts.csv"))
+        const impacts = await parseImpactCsv(fs.readFileSync(`files/PETIT_BI_${version}__03_Procedes_Impacts.csv`))
         
         const expectedImpacts = [
             {trunkExternId: "940bf6ef-aaae-4559-9dd3-0cd68d30b2f4", impactExternId: "ec7836be-83eb-41da-bcda-1a6a3fe2d149", bqt: 0.00175113},
