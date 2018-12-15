@@ -166,7 +166,7 @@ export const ademeToBlueforestTrunk = async (raws, ownerId) =>
                                     },
                                     cat: await resolveCategories(raw),
                                     color: getRandomColor(),
-                                    origin: "ADEME",
+                                    origin: "ADEME base Impact v1.11",
                                     raw,
                                     oid: ownerId
                                 }
