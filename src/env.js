@@ -1,12 +1,15 @@
 const debug = require('debug')('api:import')
 import {version, name} from './../package.json'
 
+const baseVersion = "1.11"
+
 const ENV = {
     NAME: name,
-    ADEME_CATIMPACT_FILE: process.env.ADEME_CATIMPACT_FILE || "files/BI_1.11__06_CatImpacts_Details.xlsx",
-    ADEME_CATPRODUIT_FILE: process.env.ADEME_CATPRODUIT_FILE || "files/BI_1.11__02_Procedes_Details.xlsx",
-    ADEME_PRODUIT_FILE: process.env.ADEME_PRODUIT_FILE || "files/BI_1.11__02_Procedes_Details.xlsx",
-    ADEME_PRODUIT_IMPACT_FILE: process.env.ADEME_PRODUIT_IMPACT_FILE || "files/BI_1.11__03_Procedes_Impacts.csv",
+    BASE_VERSION: process.env.BASE_VERSION || baseVersion,
+    ADEME_CATIMPACT_FILE: process.env.ADEME_CATIMPACT_FILE || `files/BI_${baseVersion}__06_CatImpacts_Details.xlsx`,
+    ADEME_CATPRODUIT_FILE: process.env.ADEME_CATPRODUIT_FILE || `files/BI_${baseVersion}__02_Procedes_Details.xlsx`,
+    ADEME_PRODUIT_FILE: process.env.ADEME_PRODUIT_FILE || `files/BI_${baseVersion}__02_Procedes_Details.xlsx`,
+    ADEME_PRODUIT_IMPACT_FILE: process.env.ADEME_PRODUIT_IMPACT_FILE || `files/BI_${baseVersion}__03_Procedes_Impacts.csv`,
 
 
     DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING,

@@ -1,3 +1,4 @@
+import ENV from "./../env"
 import {col} from "mongo-registry"
 import {map, omit} from 'lodash'
 import {grandeur, unit, filter} from "unit-manip"
@@ -112,9 +113,7 @@ const parseDesc = {
 
 const resolveCategorie = filter => cats().findOne(filter)
 
-const resolveCategories = async raw =>
-
-{
+const resolveCategories = async raw => {
     const categories = {}
     const c0 = await resolveCategorie({name: "ADEME", pid: null})
     if (c0) {
@@ -166,7 +165,7 @@ export const ademeToBlueforestTrunk = async (raws, ownerId) =>
                                     },
                                     cat: await resolveCategories(raw),
                                     color: getRandomColor(),
-                                    origin: "ADEME base Impact v1.11",
+                                    origin: "ADEME base Impact v" + ENV.BASE_VERSION,
                                     raw,
                                     oid: ownerId
                                 }
@@ -185,8 +184,3 @@ const erreurGrandeur = shortname => {
     error.status = 422
     throw error
 }
-
-// router.post('/api/import/ademe/trunk',
-//     fileUpload({files: 1, limits: {fileSize: 10 * 1024 * 1024}}),
-//     run(({}, req) => importAdemeTrunkEntries(req.files.file && req.files.file.data || req.files['xlsx.ademe.trunk'].data))
-// )
