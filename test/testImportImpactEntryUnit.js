@@ -1,6 +1,6 @@
 import {expect} from "chai"
 import {countFromDbByDoc, init} from "test-api-express-mongo"
-import {ademeToBlueforestImpactEntries, ademeUnitToGrandeurEq} from "../src/impact/importImpactEntryService"
+import {ademeToBlueforestImpactEntries, ademeUnitToGrandeurEq} from "../src/impact/impactEntry"
 import {loadGrandeurs} from "../src/grandeur/grandeurService"
 import {initUnits} from "unit-manip"
 

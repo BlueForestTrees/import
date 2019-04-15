@@ -1,6 +1,6 @@
 {
-  "name": "import",
-  "version": "1.0.23",
+  "name": "adm-import",
+  "version": "1.1.0",
   "description": "service d'import des bases impact ademe",
   "main": "dist/index.js",
   "repository": "https://github.com/BlueForestTrees/api-import.git",
@@ -40,6 +40,7 @@
     "mongo-registry": "1.0.19",
     "request": "2.88.0",
     "request-promise-native": "1.0.5",
+    "simple-rbmq": "2.0.2",
     "unit-manip": "1.0.10",
     "v-file-upload": "3.1.3"
   },

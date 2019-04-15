@@ -1,8 +1,10 @@
-import {map} from "lodash"
+import {map} from 'lodash'
 import {grandeur} from "unit-manip"
 import {parse} from "../util/excel"
+import {col} from "mongo-registry"
+import {cols} from "../collections"
 
-const damages = ["PDF","CTUe","CTUh","DALY","PNOF", "$"]
+const damages = ["PDF", "CTUe", "CTUh", "DALY", "PNOF", "$"]
 
 const parseDesc = {
     firstDocAt: 3,
@@ -36,7 +38,8 @@ export const ademeToBlueforestImpactEntries = (ademeUserId, raws) => map(raws, r
                     color: "#696969",
                     origin: "ADEME base Impact v1.11",
                     raw,
-                    oid: ademeUserId
+                    oid: ademeUserId,
+                    dateUpdate: new Date()
                 }
             },
             upsert: true
@@ -58,3 +61,28 @@ export const ademeUnitToGrandeurEq = ademeUnit => {
 }
 
 export const importAdemeImpactEntries = async ({buffer, ademeUserId}) => ademeToBlueforestImpactEntries(ademeUserId, await parse(buffer, parseDesc))
+
+export const moveDamages = (impactEntries, damageEntries) => async () => {
+    const damages = map(await impactEntries.find({damage: true}).toArray(), id => {
+        const _id = id._id
+        delete id.damage
+        delete id._id
+        return ({
+            updateOne: {
+                filter: {externId: id.externId},
+                update: {
+                    $set: id,
+                    $setOnInsert: {_id}
+                },
+                upsert: true
+            }
+        })
+    })
+
+    await damageEntries.bulkWrite(damages, {ordered: false})
+    await impactEntries.deleteMany({damage: true})
+
+    return damages.length
+}
+
+export const writeImpactEntries = data => col(cols.IMPACT_ENTRY).bulkWrite(data, {ordered: false}).then(() => data.length)

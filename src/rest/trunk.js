@@ -1,11 +1,11 @@
 import ENV from "./../env"
-import {col} from "mongo-registry"
-import {map, omit} from 'lodash'
+import {col, createObjectId} from "mongo-registry"
+import {map} from 'lodash'
 import {grandeur, unit, filter} from "unit-manip"
 import {parse} from "../util/excel"
 import {cols} from "../collections"
 import {getRandomColor} from "../util/util"
-import {getAdemeUserId} from "../api"
+import {getAdemeUserId} from "./user"
 
 const trunks = () => col(cols.TRUNK)
 const cats = () => col(cols.CATEGORIES)
@@ -20,17 +20,7 @@ export const importAdemeTrunkEntries = async buffer => {
 
     let raws = await parse(buffer, parseDesc)
 
-    let writes = await ademeToBlueforestTrunk(raws, ademeUserId)
-
-    const result = await trunks().bulkWrite(writes, {ordered: false})
-    return {
-        ok: result.ok === 1,
-        insertions: result.nInserted,
-        upsertions: result.nUpserted,
-        matches: result.nMatched,
-        modifieds: result.nModified,
-        removeds: result.nRemoved
-    }
+    return ademeToBlueforestTrunk(raws, ademeUserId)
 }
 
 const parseDesc = {
@@ -114,22 +104,22 @@ const parseDesc = {
 const resolveCategorie = filter => cats().findOne(filter)
 
 const resolveCategories = async raw => {
-    const categories = {}
-    const c0 = await resolveCategorie({name: "ADEME", pid: null})
+    const categories = []
+    const c0 = await resolveCategorie({name: "ADEME", pids: null})
     if (c0) {
-        categories.c0 = c0._id
-        const c1 = await resolveCategorie({name: raw["Catégorie 1"], pid: c0._id})
+        categories.push(c0._id)
+        const c1 = await resolveCategorie({name: raw["Catégorie 1"], pids: c0._id})
         if (c1) {
-            categories.c1 = c1._id
-            const c2 = await resolveCategorie({name: raw["Catégorie 2"], pid: c1._id})
+            categories.push(c1._id)
+            const c2 = await resolveCategorie({name: raw["Catégorie 2"], pids: c1._id})
             if (c2) {
-                categories.c2 = c2._id
-                const c3 = await resolveCategorie({name: raw["Catégorie 3"], pid: c2._id})
+                categories.push(c2._id)
+                const c3 = await resolveCategorie({name: raw["Catégorie 3"], pids: c2._id})
                 if (c3) {
-                    categories.c3 = c3._id
-                    const c4 = await resolveCategorie({name: raw["Catégorie 4"], pid: c3._id})
+                    categories.push(c3._id)
+                    const c4 = await resolveCategorie({name: raw["Catégorie 4"], pids: c3._id})
                     if (c4) {
-                        categories.c4 = c4._id
+                        categories.push(c4._id)
                     }
                 }
             }
@@ -139,48 +129,53 @@ const resolveCategories = async raw => {
 }
 
 export const ademeToBlueforestTrunk = async (raws, ownerId) =>
-    filter(
-        await Promise.all(
-            map(
-                raws,
-                async raw => {
-                    let rawUnit = raw["Quantité"]["Unité"]
-                    let u = unit(rawUnit)
+    filter(await Promise.all(map(raws,
+        async raw => {
+            let rawUnit = raw["Quantité"]["Unité"]
+            let u = unit(rawUnit)
 
-                    if (!u) {
-                        console.warn(`unité inconnue "${rawUnit}" dans ${JSON.stringify(raw)}`)
-                        return null
-                    }
+            if (!u) {
+                console.warn(`unité inconnue "${rawUnit}" dans ${JSON.stringify(raw)}`)
+                return null
+            }
 
-                    return {
-                        updateOne: {
-                            filter: {externId: raw.externId},
-                            update: {
-                                $set: {
-                                    externId: raw.externId,
-                                    name: raw.Nom,
-                                    quantity: {
-                                        bqt: raw["Quantité"]["Quantité de référence"] * u.coef,
-                                        g: grandeur(rawUnit) || erreurGrandeur(rawUnit),
-                                    },
-                                    cat: await resolveCategories(raw),
-                                    color: getRandomColor(),
-                                    origin: "ADEME base Impact v" + ENV.BASE_VERSION,
-                                    raw,
-                                    oid: ownerId
-                                }
-                            },
-                            upsert: true
-                        }
-                    }
-                }
-            )
-        ),
-        o => o
-    )
+            return {
+                _id: await getTrunkId(raw.externId),
+                externId: raw.externId,
+                name: raw.Nom,
+                quantity: {
+                    bqt: raw["Quantité"]["Quantité de référence"] * u.coef,
+                    g: grandeur(rawUnit) || erreurGrandeur(rawUnit),
+                },
+                cats: await resolveCategories(raw),
+                color: getRandomColor(),
+                origin: "ADEME base Impact v" + ENV.BASE_VERSION,
+                date: getDate(raw),
+                dateUntil: getUntilDate(raw),
+                dateComment: getDateComment(raw),
+                comment: getComment(raw),
+                oid: ownerId,
+                dateUpdate: new Date()
+            }
+        }
+    )), o => o)
 
 const erreurGrandeur = shortname => {
     const error = new Error(`grandeur non trouvée pour l'unité "${shortname}"`)
     error.status = 422
     throw error
 }
+
+const trunkIdCache = {}
+export const getTrunkId = async (externId) => {
+    if (!trunkIdCache[externId]) {
+        const trunk = await trunks().findOne({externId}, {projection: {_id: 1}})
+        trunkIdCache[externId] = trunk && trunk._id || createObjectId()
+    }
+    return trunkIdCache[externId]
+}
+
+const getDate = raw => new Date(parseInt(raw.Temps["Année de référence"]), 0)
+const getUntilDate = raw => new Date(parseInt(raw.Temps["Valable jusqu'au"]), 0)
+const getDateComment = raw => raw.Temps["Description représentative du temps"]
+const getComment = raw => raw["Commentaire Général"] + "<br><br>" + raw.Technologie.Description
