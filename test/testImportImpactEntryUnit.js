@@ -61,7 +61,7 @@ describe('Imports utils', function () {
             'nom origine ILCD': 'ILCD2011; Climate change; midpoint; GWP100; IPCC2007',
             commentaire: 'Factors issued from the baseline model of the IPCC (2007)',
             'Niveau de recommendation': 'I',
-            'Unité de référence': 'PDF',
+            'Unité de référence': 'D',
             unitDescription: 'Mass CO2-equivalents',
             referenceYear: 'no time reference',
             validUntil: '100 years',
@@ -82,7 +82,7 @@ describe('Imports utils', function () {
                         oid:67,
                         damage: true,
                         externId: "370960f4-0a3a-415d-bf3e-e5ce63160bb9",
-                        g: "PDF",
+                        g: "D",
                         name: "Changement climatique",
                         origin: "ADEME",
                         raw: ademe

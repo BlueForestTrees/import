@@ -5,22 +5,19 @@ import {col} from "mongo-registry"
 import {cols} from "../collections"
 import {parseImpactEntryCsv} from "../util/csv"
 
-const damages = ["PDF", "CTUe", "CTUh", "DALY", "PNOF", "$"]
-//AL => DALY
-//TU => CTUh    //question ADEME
-//TU => CTUe    //question ADEME
+const damages = ["D", "TU", "AL", "NO", "$"]
+//DALY => AL
+//CTUh => TU
+//CTUe => TU
 //'' => $   //informer ADEME
 //éq. m3 => nouveau => m3
-//D => PDF
-//NO => PNOF
+//PDF => D
+//PNOF => NO
 
 
 export const importAdemeImpactEntries = async ({buffer, ademeUserId}) => ademeToBlueforestImpactEntries(ademeUserId, await parseImpactEntryCsv(buffer))
 
 export const ademeToBlueforestImpactEntries = (ademeUserId, raws) => map(raws, raw => {
-
-    console.log(raw)
-
     const impactEntry = {
         updateOne: {
             filter: {externId: raw.externId},
@@ -45,9 +42,10 @@ export const ademeToBlueforestImpactEntries = (ademeUserId, raws) => map(raws, r
 })
 
 export const ademeUnitToGrandeurEq = ademeUnit => {
-    const splitted = ademeUnit.split("éq.")
+    const convertedAdemeUnit = ademeUnit === "éq. m3" && "m3" || ademeUnit === "" && "$" || ademeUnit
+    const splitted = convertedAdemeUnit.split("éq.")
     if (splitted.length === 1) {
-        return {g: grandeur(ademeUnit)}
+        return {g: grandeur(convertedAdemeUnit)}
     } else if (splitted.length === 2) {
         return {g: grandeur(splitted[0].trim()), eq: splitted[1].trim()}
     }

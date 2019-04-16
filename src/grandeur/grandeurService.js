@@ -13,20 +13,17 @@ const unit = (shortname, name, coef) =>
 
 export const loadGrandeurs = () => Promise.resolve(
     [
-        grandeur("PNOF", "PNOF - Potentially Not Occuring Number of plant species in terrestrial ecosystems * time", [
-            unit("PNOF", "Potentially Not Occuring Number of plant species in terrestrial ecosystems * time (PNOF)", 1)
+        grandeur("NO", "NO - Potentially Not Occuring Number of plant species in terrestrial ecosystems * time", [
+            unit("NO", "Potentially Not Occuring Number of plant species in terrestrial ecosystems * time (NO)", 1)
         ]),
-        grandeur("PDF", "PDF - Potentially Disappeared Number of plant species in terrestrial ecosystems * time", [
-            unit("PDF", "Potentially Disappeared Number of plant species in terrestrial ecosystems * time (PDF)", 1)
+        grandeur("D", "D - Potentially Disappeared Number of plant species in terrestrial ecosystems * time", [
+            unit("D", "Potentially Disappeared Number of plant species in terrestrial ecosystems * time (D)", 1)
         ]),
-        grandeur("DALY", "DALY - Disability Adjusted Life Years - Calculations adapted to USEtox midpoint (Huijbregts et al., 2005).", [
-            unit("DALY", "Disability Adjusted Life Years (DALY)", 1)
+        grandeur("AL", "AL - Disability Adjusted Life Years - Calculations adapted to USEtox midpoint (Huijbregts et al., 2005).", [
+            unit("AL", "Disability Adjusted Life Years (AL)", 1)
         ]),
-        grandeur("CTUh", "CTUh - Comparative Toxic Unit for humans", [
-            unit("CTUh", "Comparative Toxic Unit for humans (CTUh) * volume * time", 1)
-        ]),
-        grandeur("CTUe", "CTUe - Comparative Toxic Unit for ecosystems", [
-            unit("CTUe", "Comparative Toxic Unit for ecosystems (CTUe) * volume * time", 1)
+        grandeur("TU", "TU - Comparative Toxic Unit", [
+            unit("TU", "Comparative Toxic Unit(TU) * volume * time", 1)
         ]),
         grandeur("Ene1", "Energie (J, kJ, MJ...)", [
             unit("MJ", "Méga-Joule", 1),

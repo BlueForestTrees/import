@@ -27,22 +27,22 @@ export const parseImpactCsv = async buffer => await new Promise(function (resolv
     const impacts = []
     let head = true
     let ignoreCount = 1
-    let idProduits = null
+    let line = null
 
-    rl.on('line', (lineProduits) => {
+    rl.on('line', lineProduits => {
         if (head) {
             head = false
-            idProduits = tagLine(lineProduits)
-            idProduits.skip(4)
+            line = tagLine(lineProduits)
+            line.skip(4)
         } else if (ignoreCount === 0) {
             const tl = tagLine(lineProduits)
             let qt
             let impactId = tl.next()
             tl.skip(3)
-            idProduits.reset()
-            idProduits.skip(4)
+            line.reset()
+            line.skip(4)
             while (qt = tl.next()) {
-                impacts.push({trunkExternId: idProduits.next(), impactExternId: impactId, bqt: parseFloat(qt)})
+                impacts.push({trunkExternId: line.next(), impactExternId: impactId, bqt: parseFloat(qt)})
             }
         } else {
             ignoreCount--
@@ -67,7 +67,7 @@ export const parseImpactEntryCsv = async buffer => await new Promise(function (r
             head = false
         } else if (ignoreCount === 0) {
             const cursor = tagLine(line)
-            let externId = noQuotes(cursor.next())
+            let externId = cursor.next()
             cursor.skip()
             let nom = noQuotes(cursor.next())
             let unit = noQuotes(cursor.next())

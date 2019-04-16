@@ -142,7 +142,7 @@ export const ademeToBlueforestTrunk = async (raws, ownerId) =>
             }
 
             return {
-                _id: await getTrunkId(raw.externId),
+                _id: await getOrCreateTrunkId(raw.externId),
                 externId: raw.externId,
                 name: raw.Nom,
                 quantity: {
@@ -169,13 +169,18 @@ const erreurGrandeur = shortname => {
 }
 
 const trunkIdCache = {}
-export const getTrunkId = async (externId) => {
+export const getOrCreateTrunkId = async externId => {
     if (!trunkIdCache[externId]) {
         const trunk = await trunks().findOne({externId}, {projection: {_id: 1}})
-        trunkIdCache[externId] = trunk && trunk._id || createObjectId()
+        if (trunk && trunk._id) {
+            trunkIdCache[externId] = trunk._id
+        } else {
+            trunkIdCache[externId] = createObjectId()
+        }
     }
     return trunkIdCache[externId]
 }
+export const getTrunkId = async externId => trunkIdCache[externId]
 
 const getDate = raw => new Date(parseInt(raw.Temps["Année de référence"]), 0)
 const getUntilDate = raw => new Date(parseInt(raw.Temps["Valable jusqu'au"]), 0)
