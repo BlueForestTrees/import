@@ -3,30 +3,24 @@ import {grandeur} from "unit-manip"
 import {parse} from "../util/excel"
 import {col} from "mongo-registry"
 import {cols} from "../collections"
+import {parseImpactEntryCsv} from "../util/csv"
 
 const damages = ["PDF", "CTUe", "CTUh", "DALY", "PNOF", "$"]
+//AL => DALY
+//TU => CTUh    //question ADEME
+//TU => CTUe    //question ADEME
+//'' => $   //informer ADEME
+//éq. m3 => nouveau => m3
+//D => PDF
+//NO => PNOF
 
-const parseDesc = {
-    firstDocAt: 3,
-    fields: [
-        {idx: 3, fieldName: "externId"},
-        {idx: 4, fieldName: "nom"},
-        {idx: 6, fieldName: "nom origine ILCD"},
-        {idx: 10, fieldName: "commentaire"},
-        {idx: 11, fieldName: "Niveau de recommendation"},
-        {idx: 13, fieldName: "Unité de référence"},
-        {idx: 14, fieldName: "unitDescription"},
-        {idx: 16, fieldName: "referenceYear"},
-        {idx: 17, fieldName: "validUntil"},
-        {idx: 24, fieldName: "dataSource", type: "array", sep: "; "},
-        {idx: 37, fieldName: "dataSourceOrigin"},
-        {idx: 32, fieldName: "commanditaire", type: "array", sep: ", "},
-        {idx: 36, fieldName: "datasetFormat"},
-        {idx: 39, fieldName: "datasetVersion"},
-    ]
-}
+
+export const importAdemeImpactEntries = async ({buffer, ademeUserId}) => ademeToBlueforestImpactEntries(ademeUserId, await parseImpactEntryCsv(buffer))
 
 export const ademeToBlueforestImpactEntries = (ademeUserId, raws) => map(raws, raw => {
+
+    console.log(raw)
+
     const impactEntry = {
         updateOne: {
             filter: {externId: raw.externId},
@@ -34,10 +28,9 @@ export const ademeToBlueforestImpactEntries = (ademeUserId, raws) => map(raws, r
                 $set: {
                     externId: raw.externId,
                     name: raw.nom,
-                    ...ademeUnitToGrandeurEq(raw['Unité de référence']),
+                    ...ademeUnitToGrandeurEq(raw.unit),
                     color: "#696969",
                     origin: "ADEME base Impact v1.11",
-                    raw,
                     oid: ademeUserId,
                     dateUpdate: new Date()
                 }
@@ -45,7 +38,7 @@ export const ademeToBlueforestImpactEntries = (ademeUserId, raws) => map(raws, r
             upsert: true
         }
     }
-    if (damages.indexOf(raw['Unité de référence']) !== -1) {
+    if (damages.indexOf(raw.unit) !== -1) {
         impactEntry.updateOne.update.$set.damage = true
     }
     return impactEntry
@@ -60,7 +53,7 @@ export const ademeUnitToGrandeurEq = ademeUnit => {
     }
 }
 
-export const importAdemeImpactEntries = async ({buffer, ademeUserId}) => ademeToBlueforestImpactEntries(ademeUserId, await parse(buffer, parseDesc))
+export const writeImpactEntries = data => col(cols.IMPACT_ENTRY).bulkWrite(data, {ordered: false}).then(() => data.length)
 
 export const moveDamages = (impactEntries, damageEntries) => async () => {
     const damages = map(await impactEntries.find({damage: true}).toArray(), id => {
@@ -79,10 +72,8 @@ export const moveDamages = (impactEntries, damageEntries) => async () => {
         })
     })
 
-    await damageEntries.bulkWrite(damages, {ordered: false})
-    await impactEntries.deleteMany({damage: true})
+    damages.length && await damageEntries.bulkWrite(damages, {ordered: false})
+    damages.length && await impactEntries.deleteMany({damage: true})
 
     return damages.length
 }
-
-export const writeImpactEntries = data => col(cols.IMPACT_ENTRY).bulkWrite(data, {ordered: false}).then(() => data.length)

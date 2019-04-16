@@ -11,7 +11,6 @@ export const importImpacts = sendImpact => async raws => {
     const ademeUserId = await getAdemeUserId()
 
     let totalImpacts = 0
-    let totalDamages = 0
 
     for (let i = 0; i < raws.length; i++) {
         const raw = raws[i]
@@ -31,16 +30,21 @@ export const importImpacts = sendImpact => async raws => {
         }
 
         if (i % 5000 === 0) {
-            debug("%o/%o", i, raws.length, totalImpacts, totalDamages)
+            debug("%o/%o", totalImpacts, raws.length)
         }
     }
-    return {ok: 1, impacts: totalImpacts, damages: totalDamages}
+    return {ok: 1, impacts: totalImpacts}
 }
 
 const impactEntryIdCache = {}
 const getImpactEntryId = async ({impactExternId}) => {
     if (!impactEntryIdCache[impactExternId]) {
         const doc = await col(cols.IMPACT_ENTRY).findOne({externId: impactExternId}, {projection: {_id: 1}})
+        if(!doc || doc._id){
+            debug("impactEntry not found %o", impactExternId)
+        }else{
+            debug("impactEntry found %o", impactExternId)
+        }
         impactEntryIdCache[impactExternId] = doc && doc._id || createObjectId()
     }
     return impactEntryIdCache[impactExternId]

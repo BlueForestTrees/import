@@ -13,24 +13,24 @@ const debug = require('debug')('api:import')
 
 export const all = ENV => async ([sendTrunks, sendImpact]) => {
     debug("impact entry...")
-    await importAdemeImpactEntries({ademeUserId: await getAdemeUserId(), buffer: fs.readFileSync(ENV.ADEME_CATIMPACT_FILE)})
+    await importAdemeImpactEntries({ademeUserId: await getAdemeUserId(), buffer: fs.readFileSync(ENV.ADEME_PRODUIT_IMPACT_FILE, "latin1")})
         .then(writeImpactEntries)
         .then(debug)
         .then(moveDamages(col(cols.IMPACT_ENTRY), col(cols.DAMAGE_ENTRY)))
         .then(debug)
 
-    debug("categorie de produits...")
+    debug("trunk categorie...")
     await parseAdemeCategories(fs.readFileSync(ENV.ADEME_CATPRODUIT_FILE))
         .then(writeCats)
         .then(debug)
 
-    debug("produit...")
+    debug("trunk...")
     await importAdemeTrunkEntries(fs.readFileSync(ENV.ADEME_PRODUIT_FILE))
         .then(sendTrunks)
         .then(debug)
 
-    debug("impact de produit...")
-    await parseImpactCsv(fs.readFileSync(ENV.ADEME_PRODUIT_IMPACT_FILE))
+    debug("trunk impact...")
+    await parseImpactCsv(fs.readFileSync(ENV.ADEME_PRODUIT_IMPACT_FILE, "latin1"))
         .then(importImpacts(sendImpact))
         .then(debug)
 }

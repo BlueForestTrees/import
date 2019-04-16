@@ -7,6 +7,8 @@ import {cols} from "../collections"
 import {getRandomColor} from "../util/util"
 import {getAdemeUserId} from "./user"
 
+const debug = require('debug')('api:import')
+
 const trunks = () => col(cols.TRUNK)
 const cats = () => col(cols.CATEGORIES)
 

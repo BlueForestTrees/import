@@ -10,7 +10,7 @@ export const parseZoneGeoCsv = async buffer => await new Promise(function (resol
     rl.on('line', (rawLine) => {
         if (!head) {
             const line = tagLine(rawLine)
-            zones.push({code:line.next(), label:line.next()})
+            zones.push({code: line.next(), label: line.next()})
         } else {
             head = false
         }
@@ -23,12 +23,12 @@ export const parseZoneGeoCsv = async buffer => await new Promise(function (resol
 
 export const parseImpactCsv = async buffer => await new Promise(function (resolve) {
     const rl = readline.createInterface({input: streamIt(buffer)})
-    
+
     const impacts = []
     let head = true
     let ignoreCount = 1
     let idProduits = null
-    
+
     rl.on('line', (lineProduits) => {
         if (head) {
             head = false
@@ -48,19 +48,47 @@ export const parseImpactCsv = async buffer => await new Promise(function (resolv
             ignoreCount--
         }
     })
-    
+
     rl.on('close', () => {
         resolve(impacts)
     })
-    
+
+})
+
+export const parseImpactEntryCsv = async buffer => await new Promise(function (resolve) {
+    const rl = readline.createInterface({input: streamIt(buffer)})
+
+    const impacts = []
+    let head = true
+    let ignoreCount = 1
+
+    rl.on('line', (line) => {
+        if (head) {
+            head = false
+        } else if (ignoreCount === 0) {
+            const cursor = tagLine(line)
+            let externId = noQuotes(cursor.next())
+            cursor.skip()
+            let nom = noQuotes(cursor.next())
+            let unit = noQuotes(cursor.next())
+            impacts.push({nom, externId, unit})
+        } else {
+            ignoreCount--
+        }
+    })
+
+    rl.on('close', () => {
+        resolve(impacts)
+    })
+
 })
 
 export const pairTagInside = (line, start, end) => {
     let count = 0
     let i = start
-    
+
     if (start === end) return undefined
-    
+
     while (i < end) {
         i = line.indexOf("\"", i)
         if (i === -1) {
@@ -71,16 +99,16 @@ export const pairTagInside = (line, start, end) => {
             i++
         }
     }
-    
+
     return count % 2 === 0
 }
 export const tagLine = line => {
     let i = 0
     let sep = ";"
     let end
-    
+
     let column = -1
-    
+
     return {
         col: () => column,
         reset: () => {
@@ -125,3 +153,4 @@ export const indexOfWithPairTag = (line, sep, start) => {
     }
     return lookAt
 }
+const noQuotes = str => str.substr(1, str.length - 2).trim()
