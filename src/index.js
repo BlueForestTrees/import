@@ -13,7 +13,7 @@ export default initRabbit(ENV.RB)
     .then(initUnits)
     .then(() => Promise.all([
         Promise.resolve(multiSend(createSender(ENV.RB.exchange, ENV.RK_TRUNK_UPSERT))),
-        Promise.resolve(createSender(ENV.RB.exchange, ENV.RK_IMPACT_UPSERT))
+        Promise.resolve(createSender(ENV.RB.exchange, ENV.RK_IMPACT_TANK_UPSERT))
     ]))
     .then(all(ENV))
     .then(() => process.exit(0))

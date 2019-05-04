@@ -1,6 +1,6 @@
 {
   "name": "adm-import",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "service d'import des bases impact ademe",
   "main": "dist/index.js",
   "repository": "https://github.com/BlueForestTrees/api-import.git",
@@ -10,8 +10,8 @@
     "start": "node index.js",
     "build": "rimraf dist && babel src --out-dir dist/js && copyfiles etc/** dist",
     "dev": "node --version && cross-env NODE_ENV=development DEBUG=api:* node --require babel-register src/index.js",
-    "test": "cross-env DEBUG=api:*,test:* NODE_ENV=test PORT=9002 REST_PATH=src/rest mocha --recursive --require babel-register --exit \"test/**/*.js\"",
-    "importAll": "cross-env DEBUG=api:*,test:* NODE_ENV=test PORT=9002 REST_PATH=src/rest mocha --recursive --require babel-register --exit \"test/testImportAll.js\""
+    "test": "cross-env DEBUG=api:*,test:* NODE_ENV=test mocha --recursive --require babel-register --exit \"test/**/*.js\"",
+    "importAll": "cross-env DEBUG=api:*,test:* NODE_ENV=test mocha --recursive --require babel-register --exit \"test/testImportAll.js\""
   },
   "devDependencies": {
     "babel-cli": "6.26.0",
