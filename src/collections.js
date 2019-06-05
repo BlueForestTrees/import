@@ -4,6 +4,6 @@ export const cols = {
     CATEGORIES: 'CategoriesCollection',
     DAMAGE_ENTRY: 'damageEntryCollection',
     IMPACT_ENTRY: 'impactEntryCollection',
-    DAMAGE: 'damageCollection',
-    IMPACT: 'impactCollection'
+    DAMAGE: 'damage',
+    IMPACT: 'impact'
 }
