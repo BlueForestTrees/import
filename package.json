@@ -35,7 +35,7 @@
     "cross-env": "5.2.0",
     "debug": "3.1.0",
     "exceljs": "1.6.0",
-    "jsonwebtoken": "8.3.0",
+    "jsonwebtoken": "9.0.0",
     "lodash": "4.17.10",
     "mongo-registry": "1.0.19",
     "request": "2.88.0",
